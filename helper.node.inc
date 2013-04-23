@@ -12,7 +12,7 @@ function helper_node_load(array $nodes) {
   // Add an unpublished comment count property to loaded nodes.
   if (module_exists('comment')) {
     $unpublished_counts = db_query('SELECT nid, COUNT(cid) FROM {comment} WHERE nid IN (:nids) AND status = :status GROUP BY nid', array(
-      ':nid' => array_keys($nodes),
+      ':nids' => array_keys($nodes),
       ':status' => COMMENT_NOT_PUBLISHED,
     ))->fetchAllKeyed();
     $unpublished_counts += array_fill_keys(array_keys($nodes), 0);
