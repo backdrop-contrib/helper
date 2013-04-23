@@ -5,4 +5,5 @@ php = 5.3
 files[] = lib/EntityHelper.php
 files[] = lib/ArrayHelper.php
 files[] = lib/FieldHelper.php
+files[] = includes/HelperDebugMailLog.php
 files[] = views/views_handler_field_helper_entity_operation_links.inc
