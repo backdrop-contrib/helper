@@ -68,6 +68,29 @@ function helper_menu_alter(&$items) {
 }
 
 /**
+ * Implements hook_preprocess_HOOK().
+ *
+ * Add destination query string to local action links to take you back to
+ * the page where you clicked the location action when done.
+ */
+function helper_preprocess_menu_local_action(&$variables) {
+  $link = &$variables['element']['#link'];
+
+  // Some local actions need to be whitelisted as having a redirect causes bugs.
+  switch ($link['path']) {
+    case 'admin/appearance/install':
+    case 'admin/modules/install':
+    case 'admin/reports/updates/install':
+    case 'admin/structure/views/add':
+      return;
+  }
+
+  $link += array('localized_options' => array());
+  $link['localized_options'] += array('query' => array());
+  $link['localized_options']['query'] += drupal_get_destination();
+}
+
+/**
  * Implements hook_ajax_render_alter().
  */
 function helper_ajax_render_alter() {
