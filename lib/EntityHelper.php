@@ -3,6 +3,49 @@
 class EntityHelper {
 
   /**
+   * A wrapper around entity_load() to load a single entity by ID.
+   *
+   * @param string $entity_type
+   *   The entity type of $entity.
+   * @param int $entity_id
+   *   The ID of the entity to load.
+   *
+   * @return object
+   *   The entity object, or FALSE on failure.
+   *
+   * @see entity_load()
+   */
+  function loadSingle($entity_type, $entity_id) {
+    $entities = entity_load($entity_type, array($entity_id));
+    return reset($entities);
+  }
+
+  /**
+   * Load a single entity revision.
+   *
+   * @param string $entity_type
+   *   The entity type of $entity.
+   * @param int $entity_id
+   *   The ID of the entity to load.
+   * @param int $revision_id
+   *   The ID of the revision to load.
+   *
+   * @return object
+   *   The entity object of the specific revision, or FALSE on failure.
+   *
+   * @see entity_load()
+   */
+  function loadRevision($entity_type, $entity_id, $revision_id) {
+    $conditions = array();
+    $info = entity_get_info($entity_type);
+    if (!empty($info['entity keys']['revision'])) {
+      $conditions[$info['entity keys']['revision']] = $revision_id;
+    }
+    $entities = entity_load($entity_type, array($entity_id), $conditions);
+    return reset($entities);
+  }
+
+  /**
    * A lightweight version of entity save for field values only.
    *
    * @param string $entity_type
