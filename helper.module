@@ -1,3 +1,141 @@
 <?php
 
-// Empty module file on purpose.
+/**
+ * Implements hook_hook_info_alter().
+ */
+function helper_hook_info_alter(&$info) {
+  // Add modulename.group.inc support for most core hooks.
+  $groups['block'] = array(
+    'block_configure', 'block_info', 'block_info_alter', 'block_list_alter',
+    'block_save', 'block_view', 'block_view_alter',
+  );
+  $groups['comment'] = array(
+    'comment_delete', 'comment_insert', 'comment_load', 'comment_presave',
+    'comment_publish', 'comment_unpublish', 'comment_update', 'comment_view',
+    'comment_view_alter',
+  );
+  $groups['cron'] = array(
+    'cron', 'cron_queue_info', 'cron_queue_info_alter',
+  );
+  $groups['date'] = array(
+    'date_formats', 'date_formats_alter', 'date_format_types',
+    'date_format_types_alter',
+  );
+  $groups['entity'] = array(
+    'entity_delete', 'entity_info', 'entity_info_alter', 'entity_insert',
+    'entity_load', 'entity_prepare_view', 'entity_presave',
+    'entity_query_alter', 'entity_update', 'entity_view', 'entity_view_alter',
+  );
+  $groups['file'] = array(
+    'file_copy', 'file_delete', 'file_download', 'file_download_access',
+    'file_download_access_alter', 'file_insert', 'file_load',
+    'file_mimetype_mapping_alter', 'file_move', 'file_presave', 'file_update',
+    'file_url_alter', 'file_validate',
+  );
+  $groups['image'] = array(
+    'image_default_styles', 'image_effect_info', 'image_effect_info_alter',
+    'image_styles_alter', 'image_style_delete', 'image_style_flush',
+    'image_style_save', 'image_toolkits',
+  );
+  $groups['node'] = array(
+    'node_access', 'node_access_records', 'node_access_records_alter',
+    'node_delete', 'node_grants', 'node_grants_alter', 'node_info',
+    'node_insert', 'node_load', 'node_operations', 'node_prepare',
+    'node_presave', 'node_revision_delete', 'node_search_result',
+    'node_submit', 'node_type_delete', 'node_type_insert', 'node_type_update',
+    'node_update', 'node_update_index', 'node_validate', 'node_view',
+    'node_view_alter',
+  );
+
+  // Contrib modules.
+  $groups['admin_menu'] = array(
+    'admin_menu_replacements', 'admin_menu_output_build',
+    'admin_menu_output_alter', 'admin_menu_map', 'admin_menu_map_alter',
+    'admin_menu_cache_info',
+  );
+
+  foreach ($groups as $group => $hooks) {
+    $info += array_fill_keys($hooks, array('group' => $group));
+  }
+}
+
+/**
+ * Implements hook_menu_alter().
+ */
+function helper_menu_alter(&$items) {
+  // Make the delete page for nodes show up as a tab.
+  $items['node/%node/delete']['context'] = MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE;
+}
+
+/**
+ * Implements hook_ajax_render_alter().
+ */
+function helper_ajax_render_alter() {
+  // Disable XHProf module on any AJAX requests.
+  // @todo Remove when http://drupal.org/node/1485190 is fixed.
+  $GLOBALS['conf']['xhprof_enabled'] = FALSE;
+}
+
+/**
+ * Add an array of classes to the body.
+ *
+ * @param $classes
+ *   A string or an array of class strings to add.
+ */
+function helper_add_class($classes, $hook = 'body') {
+  if (!is_array($classes)) {
+    $classes = array($classes);
+  }
+
+  $static = &drupal_static('helper_classes', array());
+  if (!isset($static[$hook]['add'])) {
+    $static[$hook]['add'] = array();
+  }
+  foreach ($classes as $class) {
+    $static[$hook]['add'][] = $class;
+  }
+}
+
+/**
+ * Remove an array of classes from the body.
+ *
+ * @param $classes
+ *   A string or an array of class strings to remove.
+ */
+function helper_remove_class($classes, $hook = 'body') {
+  if (!is_array($classes)) {
+    $classes = array($classes);
+  }
+
+  $static = &drupal_static('helper_classes', array());
+  if (!isset($static[$hook]['remove'])) {
+    $static[$hook]['remove'] = array();
+  }
+  foreach ($classes as $class) {
+    $static[$hook]['remove'][] = $class;
+  }
+}
+
+/**
+ * Implements hook_process()
+ *
+ * This essentially works like panels_preprocess_html().
+ */
+function helper_process(&$variables, $hook) {
+  if (!isset($variables['classes'])) {
+    return;
+  }
+
+  $classes = drupal_static('helper_classes', array());
+  if (!empty($classes[$hook]['add'])) {
+    $add_classes = array_map('drupal_clean_css_identifier', $classes[$hook]['add']);
+    $variables['classes_array'] = array_unique(array_merge($variables['classes_array'], $add_classes));
+  }
+  if (!empty($classes[$hook]['remove'])) {
+    $remove_classes = array_map('drupal_clean_css_identifier', $classes[$hook]['remove']);
+    $variables['classes_array'] = array_diff($variables['classes_array'], $remove_classes);
+  }
+  // Since this runs after template_process(), we need to re-implode the
+  // classes array.
+  $variables['classes'] = implode(' ', $variables['classes_array']);
+}

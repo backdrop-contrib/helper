@@ -4,6 +4,11 @@ class EntityHelper {
 
   /**
    * A lightweight version of entity save for field values only.
+   *
+   * @param string $entity_type
+   *   The entity type of $entity.
+   * @param object $entity
+   *   The entity object to update.
    */
   public static function updateFieldValues($entity_type, $entity) {
     list($id) = entity_extract_ids($entity_type, $entity);
@@ -25,5 +30,90 @@ class EntityHelper {
 
     // Clear the cache for this entity now.
     entity_get_controller($entity_type)->resetCache(array($id));
+  }
+
+  /**
+   * An lightest-weight version of entity save that invokes field storage.
+   *
+   * @param string $entity_type
+   *   The entity type of $entity.
+   * @param object $entity
+   *   The entity object to update.
+   * @param array $fields
+   *   (optional) An optional array of field names that if provided will only
+   *   cause those specific fields to be saved, if values are provided.
+   */
+  public static function updateFieldValuesStorage($entity_type, $entity, array $fields = array()) {
+    list($id, , $bundle) = entity_extract_ids($entity_type, $entity);
+    if (empty($id)) {
+      throw new InvalidArgumentException(t('Cannot call EntityHelper::updateFieldValues() on an unsaved entity.'));
+    }
+
+    // Collect the storage backends used by the remaining fields in the entities.
+    $storages = array();
+    foreach (field_info_instances($entity_type, $bundle) as $instance) {
+      $field = field_info_field_by_id($instance['field_id']);
+      $field_id = $field['id'];
+      $field_name = $field['field_name'];
+
+      // Check if we care about saving this field or not.
+      if (!empty($fields) && !in_array($field_name, $fields)) {
+        continue;
+      }
+
+      // Leave the field untouched if $entity comes with no $field_name property,
+      // but empty the field if it comes as a NULL value or an empty array.
+      // Function property_exists() is slower, so we catch the more frequent
+      // cases where it's an empty array with the faster isset().
+      if (isset($entity->$field_name) || property_exists($entity, $field_name)) {
+        // Collect the storage backend if the field has not been written yet.
+        if (!isset($skip_fields[$field_id])) {
+          $storages[$field['storage']['type']][$field_id] = $field_id;
+        }
+      }
+    }
+
+    // Field storage backends save any remaining unsaved fields.
+    foreach ($storages as $storage => $storage_fields) {
+      $storage_info = field_info_storage_types($storage);
+      module_invoke($storage_info['module'], 'field_storage_write', $entity_type, $entity, FIELD_STORAGE_UPDATE, $storage_fields);
+    }
+
+    // Clear the cache for this entity now.
+    entity_get_controller($entity_type)->resetCache(array($id));
+  }
+
+  /**
+   * Return an array of all the revision IDs of a given entity.
+   *
+   * @param string $entity_type
+   *   The entity type of $entity.
+   * @param object $entity
+   *   The entity object.
+   * @param boolean $exclude_current_revision_id
+   *   (optional) If TRUE will exclude the current revision of $entity from the
+   *   results.
+   *
+   * @return array
+   *   An array of revision IDs associated with $entity.
+   */
+  public static function getAllRevisionIDs($entity_type, $entity, $exclude_current_revision_id = FALSE) {
+    $info = entity_get_info($entity_type);
+
+    if (empty($info['entity keys']['id']) || empty($info['entity keys']['revision']) || empty($info['revision table'])) {
+      return array();
+    }
+
+    list($entity_id, $revision_id) = entity_extract_ids($entity_type, $entity);
+    $id_key = $info['entity keys']['id'];
+    $revision_key = $info['entity keys']['revision'];
+
+    $query = db_select($info['revision table'], 'revision');
+    $query->addField('revision', $revision_key);
+    $query->condition('revision.' . $id_key, $entity_id);
+    if ($exclude_current_revision_id) {
+      $query->condition('revision.' . $revision_key, $revision_id, '<>');
+    }
+    return $query->execute()->fetchCol();
   }
 }

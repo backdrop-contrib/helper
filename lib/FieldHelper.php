@@ -83,4 +83,53 @@ class FieldHelper {
       return $field['type'] == $type;
     });
   }
+
+  public static function getReferencingFields($field_name = NULL) {
+    $results = array();
+
+    if ($cache = cache_get('helper:referencing-field-info', 'cache_field')) {
+      $results = $cache->data;
+    }
+    else {
+      $entity_info = entity_get_info();
+      $base_tables = array();
+      foreach ($entity_info as $type => $type_info) {
+        if (!empty($type_info['base table']) && !empty($type_info['entity keys']['id'])) {
+          $base_tables[$type_info['base table']] = array('type' => $type, 'column' => $type_info['entity keys']['id']);
+        }
+      }
+
+      $fields = field_info_fields();
+      foreach ($fields as $field_name => $field) {
+        // Cannot rely on entityreference fields having correct foreign key info.
+        // @todo Remove when http://drupal.org/node/1969018 is fixed.
+        if ($field['type'] != 'entityreference') {
+          foreach ($field['foreign keys'] as $foreign_key) {
+            if (isset($base_tables[$foreign_key['table']])) {
+              $base_table = $base_tables[$foreign_key['table']];
+              if ($column = array_search($base_table['column'], $foreign_key['columns'])) {
+                $results[$field_name] = $base_table;
+              }
+            }
+          }
+        }
+        else {
+          // Special handling for entity reference fields.
+          $type = $field['settings']['target_type'];
+          if (!empty($entity_info[$type]['base table']) && !empty($entity_info[$type]['entity keys']['id'])) {
+            $results[$field_name] = array('type' => $type, 'column' => 'target_id');
+          }
+        }
+      }
+
+      cache_set('helper:referencing-field-info', $results, 'cache_field');
+    }
+
+    if (isset($field_name)) {
+      return !empty($results[$field_name]) ? $results[$field_name] : FALSE;
+    }
+    else {
+      return $results;
+    }
+  }
 }
