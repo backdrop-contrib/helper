@@ -100,6 +100,36 @@ function helper_ajax_render_alter() {
 }
 
 /**
+ * Implements hook_url_outbound_alter().
+ *
+ * Rewrite links to the login/register pages to include the current page so
+ * the user is redirected back to their original page.
+ */
+function helper_url_outbound_alter(&$path, &$options, $original_path) {
+  $paths = &drupal_static(__FUNCTION__);
+
+  if (!isset($paths)) {
+    $paths = array();
+    if (user_is_anonymous()) {
+      // These only should get destinations if the user is anonymous.
+      $paths = array('user', 'user/login', 'user/register', 'user/password');
+    }
+    $paths = !empty($paths) ? array_flip($paths) : FALSE;
+    if (!empty($paths)) {
+      $paths = array_flip($paths);
+    }
+  }
+
+  if (!empty($paths) && isset($paths[$path]) && !isset($options['query']['destination'])) {
+    // Only add destination if we already have a destination path, or the
+    // current path does not match the paths we want to add this too.
+    if (isset($_GET['destination']) || !isset($paths[$_GET['q']])) {
+      $options['query'] += drupal_get_destination();
+    }
+  }
+}
+
+/**
  * Add an array of classes to the body.
  *
  * @param $classes
