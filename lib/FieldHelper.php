@@ -1,0 +1,86 @@
+<?php
+
+class FieldHelper {
+
+  public static function getValues($entity_type, $entity, $field_name, $column = NULL) {
+    if (!empty($entity) && $items = field_get_items($entity_type, $entity, $field_name)) {
+      if (isset($column)) {
+        $items = ArrayHelper::extractNestedValuesToArray($items, array($column));
+      }
+
+      return $items;
+    }
+  }
+
+  public static function getValue($entity_type, $entity, $field_name, $column = NULL, $delta = 0) {
+    $values = static::getValues($entity_type, $entity, $field_name, $column);
+    if (isset($items[$delta])) {
+      return $items[$delta];
+    }
+  }
+
+
+  public static function extractValues($entity_type, $entity, $field, $column) {
+    if (!empty($entity) && $items = field_get_items($entity_type, $entity, $field)) {
+      return ArrayHelper::extractNestedValuesToArray($items, array($column));
+    }
+    return array();
+  }
+
+  public static function getValueDelta($entity_type, $entity, $field, $column, $value) {
+    if (!empty($entity) && $items = field_get_items($entity_type, $entity, $field)) {
+      foreach ($items as $delta => $item) {
+        if (isset($item[$column]) && $item[$column] == $value) {
+          return $delta;
+        }
+      }
+    }
+
+    return FALSE;
+  }
+
+  public static function hasDelta($entity_type, $entity, $field, $delta) {
+    if (!empty($entity) && $items = field_get_items($entity_type, $entity, $field)) {
+      return !empty($items[$delta]);
+    }
+  }
+
+  public static function viewValue($entity_type, $entity, $field_name, $delta = 0, $display = array(), $langcode = NULL) {
+    $output = array();
+
+    if ($item = static::getValue($entity_type, $entity, $field_name, NULL, $delta)) {
+      // Determine the langcode that will be used by language fallback.
+      $langcode = field_language($entity_type, $entity, $field_name, $langcode);
+
+      // Push the item as the single value for the field, and defer to
+      // field_view_field() to build the render array for the whole field.
+      $clone = clone $entity;
+      $clone->{$field_name}[$langcode] = array($item);
+      $elements = field_view_field($entity_type, $clone, $field_name, $display, $langcode);
+
+      // Extract the part of the render array we need.
+      $output = isset($elements[0]) ? $elements[0] : array();
+      if (isset($elements['#access'])) {
+        $output['#access'] = $elements['#access'];
+      }
+    }
+
+    return $output;
+  }
+
+  /**
+   * Return an array of fields with a certain type.
+   *
+   * @param string $type
+   *   The type of field to look for.
+   *
+   * @return array
+   *   An array of fields, keyed by field name.
+   */
+  public static function getFieldsByType($type) {
+    $fields = function_exists('field_info_field_map') ? field_info_field_map() : field_info_fields();
+    return array_filter($fields, function ($field) use ($type) {
+      return $field['type'] == $type;
+    });
+  }
+}
