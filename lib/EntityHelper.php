@@ -116,4 +116,59 @@ class EntityHelper {
     }
     return $query->execute()->fetchCol();
   }
+
+  /**
+   * Return a render API array of all operations associated with an entity.
+   *
+   * This depends on modules providing operations as contextual links
+   * under the 'base path' of the entity.
+   *
+   * @param string $entity_type
+   *   The entity type of $entity.
+   * @param object $entity
+   *   The entity object.
+   * @param string $base_path
+   *   (optional) If the base path of this entity type cannot be automatically
+   *   derived from entity_uri(), then a manual override can be provided.
+   */
+  public static function getOperationLinks($entity_type, $entity, $base_path = NULL) {
+    $build = array(
+      '#theme' => 'links__operations__' . $entity_type,
+      '#links' => array(),
+      '#attributes' => array('class' => array('links inline')),
+    );
+
+    list($entity_id) = entity_extract_ids($entity_type, $entity);
+
+    // Attempt to extract the base path from the entity URI.
+    if (!isset($base_path)) {
+      $uri = entity_uri($entity_type, $entity);
+      if (empty($uri['path'])) {
+        return array();
+      }
+      $base_path = preg_replace('/\/' . preg_quote($entity_id) . '\b.*/', '', $uri['path']);
+    }
+
+    $items = menu_contextual_links($entity_type, $base_path, array($entity_id));
+    $links = array();
+    foreach ($items as $class => $item) {
+      $class = drupal_html_class($class);
+      $links[$class] = array(
+        'title' => $item['title'],
+        'href' => $item['href'],
+      );
+      $item['localized_options'] += array('query' => array());
+      $item['localized_options']['query'] += drupal_get_destination();
+      $links[$class] += $item['localized_options'];
+    }
+    $build['#links'] = $links;
+
+    drupal_alter('contextual_links_view', $build, $items);
+
+    if (empty($links)) {
+      $build['#printed'] = TRUE;
+    }
+
+    return $build;
+  }
 }
