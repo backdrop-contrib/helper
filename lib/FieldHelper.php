@@ -13,7 +13,7 @@ class FieldHelper {
   }
 
   public static function getValue($entity_type, $entity, $field_name, $column = NULL, $delta = 0) {
-    $values = static::getValues($entity_type, $entity, $field_name, $column);
+    $items = static::getValues($entity_type, $entity, $field_name, $column);
     if (isset($items[$delta])) {
       return $items[$delta];
     }
