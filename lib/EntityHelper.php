@@ -15,7 +15,7 @@ class EntityHelper {
    *
    * @see entity_load()
    */
-  function loadSingle($entity_type, $entity_id) {
+  public static function loadSingle($entity_type, $entity_id) {
     $entities = entity_load($entity_type, array($entity_id));
     return reset($entities);
   }
@@ -35,7 +35,7 @@ class EntityHelper {
    *
    * @see entity_load()
    */
-  function loadRevision($entity_type, $entity_id, $revision_id) {
+  public static function loadRevision($entity_type, $entity_id, $revision_id) {
     $conditions = array();
     $info = entity_get_info($entity_type);
     if (!empty($info['entity keys']['revision'])) {
