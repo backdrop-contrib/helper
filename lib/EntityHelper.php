@@ -37,12 +37,19 @@ class EntityHelper {
    */
   public static function loadRevision($entity_type, $entity_id, $revision_id) {
     $conditions = array();
-    $info = entity_get_info($entity_type);
-    if (!empty($info['entity keys']['revision'])) {
-      $conditions[$info['entity keys']['revision']] = $revision_id;
+    if ($revision_key = static::entityTypeKey($entity_type, 'revision')) {
+      $conditions[$revision_key] = $revision_id;
     }
     $entities = entity_load($entity_type, array($entity_id), $conditions);
     return reset($entities);
+  }
+
+  public static function entityTypeKey($entity_type, $key) {
+    $info = entity_get_info($entity_type);
+    if (!empty($info['entity keys'][$key])) {
+      return $info['entity keys'][$key];
+    }
+    return FALSE;
   }
 
   /**
