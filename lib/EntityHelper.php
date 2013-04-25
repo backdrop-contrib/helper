@@ -37,19 +37,16 @@ class EntityHelper {
    */
   public static function loadRevision($entity_type, $entity_id, $revision_id) {
     $conditions = array();
-    if ($revision_key = static::entityTypeKey($entity_type, 'revision')) {
+    if ($revision_key = static::entityTypeHasProperty($entity_type, array('entity keys', 'revision'))) {
       $conditions[$revision_key] = $revision_id;
     }
     $entities = entity_load($entity_type, array($entity_id), $conditions);
     return reset($entities);
   }
 
-  public static function entityTypeKey($entity_type, $key) {
+  public static function entityTypeHasProperty($entity_type, array $parents) {
     $info = entity_get_info($entity_type);
-    if (!empty($info['entity keys'][$key])) {
-      return $info['entity keys'][$key];
-    }
-    return FALSE;
+    return drupal_array_get_nested_value($info, $parents);
   }
 
   /**
