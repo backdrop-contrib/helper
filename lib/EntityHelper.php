@@ -44,9 +44,15 @@ class EntityHelper {
     return reset($entities);
   }
 
+  public static function loadByCondition($entity_type, array $conditions) {
+    $entities = entity_load($entity_type, FALSE, $conditions);
+    return reset($entities);
+  }
+
   public static function entityTypeHasProperty($entity_type, array $parents) {
-    $info = entity_get_info($entity_type);
-    return drupal_array_get_nested_value($info, $parents);
+    if ($info = entity_get_info($entity_type)) {
+      return drupal_array_get_nested_value($info, $parents);
+    }
   }
 
   /**

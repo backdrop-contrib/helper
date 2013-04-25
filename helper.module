@@ -128,3 +128,18 @@ function helper_url_outbound_alter(&$path, &$options, $original_path) {
     }
   }
 }
+
+/**
+ * Implements hook_registry_files_alter().
+ */
+function helper_registry_files_alter(&$files, $modules) {
+  foreach ($modules as $module) {
+    if (!$module->status && $module->name == 'selenium') {
+      $dir = $module->dir;
+      $files[$dir . '/drupal_selenium_web_test_case.php'] = array(
+        'module' => 'selenium',
+        'weight' => 0,
+      );
+    }
+  }
+}

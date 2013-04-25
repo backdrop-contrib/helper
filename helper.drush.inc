@@ -22,6 +22,6 @@ function helper_drush_cache_clear(&$types) {
 /**
  * Clears the bootstrap cache.
  */
-function helper_local_drush_cache_clear_bootstrap() {
+function helper_drush_cache_clear_bootstrap() {
   cache_clear_all('*', 'cache_bootstrap', TRUE);
 }
