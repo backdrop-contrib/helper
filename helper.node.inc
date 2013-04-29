@@ -10,7 +10,7 @@
  */
 function helper_node_load(array $nodes) {
   // Add an unpublished comment count property to loaded nodes.
-  if (module_exists('comment')) {
+  if (module_exists('comment') && helper_is_tweak_enabled('node_comment_unpublished_count')) {
     $unpublished_counts = db_query('SELECT nid, COUNT(cid) FROM {comment} WHERE nid IN (:nids) AND status = :status GROUP BY nid', array(
       ':nids' => array_keys($nodes),
       ':status' => COMMENT_NOT_PUBLISHED,
@@ -27,7 +27,7 @@ function helper_node_load(array $nodes) {
  */
 function helper_node_view($node, $view_mode, $langcode) {
   // Add an unpublished comment summary link to the node.
-  if (module_exists('comment') && $view_mode == 'teaser' && !empty($node->comment_unpublished_count)) {
+  if (module_exists('comment') && helper_is_tweak_enabled('node_comment_unpublished_count') && $view_mode == 'teaser' && !empty($node->comment_unpublished_count)) {
     _helper_node_add_unpublished_comments_link($node, $langcode);
   }
 }

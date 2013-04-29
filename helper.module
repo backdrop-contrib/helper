@@ -1,70 +1,69 @@
 <?php
 
 /**
+ * Implememts hook_menu().
+ */
+function helper_menu() {
+  $items['admin/config/system/helper'] = array(
+    'title' => 'Helpers',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('helper_settings_form'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'helper.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
  * Implements hook_hook_info_alter().
  */
 function helper_hook_info_alter(&$info) {
-  // Add modulename.group.inc support for most core hooks.
-  $groups['block'] = array(
-    'block_configure', 'block_info', 'block_info_alter', 'block_list_alter',
-    'block_save', 'block_view', 'block_view_alter',
-  );
-  $groups['comment'] = array(
-    'comment_delete', 'comment_insert', 'comment_load', 'comment_presave',
-    'comment_publish', 'comment_unpublish', 'comment_update', 'comment_view',
-    'comment_view_alter',
-  );
-  $groups['cron'] = array(
-    'cron', 'cron_queue_info', 'cron_queue_info_alter',
-  );
-  $groups['date'] = array(
-    'date_formats', 'date_formats_alter', 'date_format_types',
-    'date_format_types_alter',
-  );
-  $groups['entity'] = array(
-    'entity_delete', 'entity_info', 'entity_info_alter', 'entity_insert',
-    'entity_load', 'entity_prepare_view', 'entity_presave',
-    'entity_query_alter', 'entity_update', 'entity_view', 'entity_view_alter',
-  );
-  $groups['file'] = array(
-    'file_copy', 'file_delete', 'file_download', 'file_download_access',
-    'file_download_access_alter', 'file_insert', 'file_load',
-    'file_mimetype_mapping_alter', 'file_move', 'file_presave', 'file_update',
-    'file_url_alter', 'file_validate',
-  );
-  $groups['image'] = array(
-    'image_default_styles', 'image_effect_info', 'image_effect_info_alter',
-    'image_styles_alter', 'image_style_delete', 'image_style_flush',
-    'image_style_save', 'image_toolkits',
-  );
-  $groups['node'] = array(
-    'node_access', 'node_access_records', 'node_access_records_alter',
-    'node_delete', 'node_grants', 'node_grants_alter', 'node_info',
-    'node_insert', 'node_load', 'node_operations', 'node_prepare',
-    'node_presave', 'node_revision_delete', 'node_search_result',
-    'node_submit', 'node_type_delete', 'node_type_insert', 'node_type_update',
-    'node_update', 'node_update_index', 'node_validate', 'node_view',
-    'node_view_alter',
-  );
-
-  // Contrib modules.
-  $groups['admin_menu'] = array(
-    'admin_menu_replacements', 'admin_menu_output_build',
-    'admin_menu_output_alter', 'admin_menu_map', 'admin_menu_map_alter',
-    'admin_menu_cache_info',
-  );
-
+  module_load_include('inc', 'helper', 'helper.hook');
+  $groups = _helper_hook_info_groups();
   foreach ($groups as $group => $hooks) {
     $info += array_fill_keys($hooks, array('group' => $group));
   }
 }
 
 /**
+ * Implements hook_helper_tweak_info().
+ */
+function helper_helper_tweak_info() {
+  $info['local_action_destination'] = array(
+    'label' => t('Add destination query string to local actions.'),
+  );
+  $info['node_delete_tab'] = array(
+    'label' => t('Expose Delete on nodes as a tab.'),
+  );
+  $info['login_destination'] = array(
+    'label' => t('Add destination query strings to login/register links for anonymous users.'),
+  );
+  if (module_exists('comment')) {
+    $info['node_comment_unpublished_count'] = array(
+      'label' => t('Display unpublished comment count in node links.'),
+    );
+  }
+
+  return $info;
+}
+
+function helper_is_tweak_enabled($tweak) {
+  $tweaks = &drupal_static(__FUNCTION__);
+  if (!isset($tweaks)) {
+    $tweaks = variable_get('helper_tweaks', array());
+  }
+  return !isset($tweaks[$tweak]) || (bool) $tweaks[$tweak];
+}
+
+/**
  * Implements hook_menu_alter().
  */
 function helper_menu_alter(&$items) {
-  // Make the delete page for nodes show up as a tab.
-  $items['node/%node/delete']['context'] = MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE;
+  if (helper_is_tweak_enabled('node_delete_tab')) {
+    // Make the delete page for nodes show up as a tab.
+    $items['node/%node/delete']['context'] = MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE;
+  }
 }
 
 /**
@@ -74,20 +73,22 @@ function helper_menu_alter(&$items) {
  * the page where you clicked the location action when done.
  */
 function helper_preprocess_menu_local_action(&$variables) {
-  $link = &$variables['element']['#link'];
+  if (helper_is_tweak_enabled('local_action_destination')) {
+    $link = &$variables['element']['#link'];
 
-  // Some local actions need to be whitelisted as having a redirect causes bugs.
-  switch ($link['path']) {
-    case 'admin/appearance/install':
-    case 'admin/modules/install':
-    case 'admin/reports/updates/install':
-    case 'admin/structure/views/add':
-      return;
+    // Some local actions need to be whitelisted as having a redirect causes bugs.
+    switch ($link['path']) {
+      case 'admin/appearance/install':
+      case 'admin/modules/install':
+      case 'admin/reports/updates/install':
+      case 'admin/structure/views/add':
+        return;
+    }
+
+    $link += array('localized_options' => array());
+    $link['localized_options'] += array('query' => array());
+    $link['localized_options']['query'] += drupal_get_destination();
   }
-
-  $link += array('localized_options' => array());
-  $link['localized_options'] += array('query' => array());
-  $link['localized_options']['query'] += drupal_get_destination();
 }
 
 /**
@@ -110,7 +111,10 @@ function helper_url_outbound_alter(&$path, &$options, $original_path) {
 
   if (!isset($paths)) {
     $paths = array();
-    if (user_is_anonymous()) {
+    if (!helper_is_tweak_enabled('login_destination')) {
+      $paths = FALSE;
+    }
+    elseif (user_is_anonymous()) {
       // These only should get destinations if the user is anonymous.
       $paths = array('user', 'user/login', 'user/register', 'user/password');
     }
@@ -134,6 +138,8 @@ function helper_url_outbound_alter(&$path, &$options, $original_path) {
  */
 function helper_registry_files_alter(&$files, $modules) {
   foreach ($modules as $module) {
+    // If the selenium module is avaiable, but disabled, it causes fatal errors
+    // when trying to access the Testing UI.
     if (!$module->status && $module->name == 'selenium') {
       $dir = $module->dir;
       $files[$dir . '/drupal_selenium_web_test_case.php'] = array(
