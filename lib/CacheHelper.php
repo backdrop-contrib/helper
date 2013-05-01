@@ -2,6 +2,11 @@
 
 class CacheHelper {
 
+  /**
+   * A copy of cache_get() that respects expiration.
+   *
+   * @see http://drupal.org/node/534092
+   */
   public static function get($cid, $bin = 'cache') {
     if ($cache = cache_get($cid, $bin)) {
       if (!static::isCacheUnexpired($cache)) {
@@ -11,6 +16,11 @@ class CacheHelper {
     return $cache;
   }
 
+  /**
+   * A copy of cache_get_multiple() that respects expiration.
+   *
+   * @see http://drupal.org/node/534092
+   */
   public static function getMultiple(array &$cids, $bin = 'cache') {
     $cache = cache_get_multiple($cids, $bin);
     return array_filter($cache, array(get_called_class(), 'isCacheUnexpired'));
