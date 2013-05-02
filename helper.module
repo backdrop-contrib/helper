@@ -149,3 +149,19 @@ function helper_registry_files_alter(&$files, $modules) {
     }
   }
 }
+
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Fix any uses of #states in field formatter settings output in Views UI.
+ *
+ * @see http://drupal.org/node/1387832
+ * @see http://drupal.org/node/1985406
+ */
+function helper_form_views_ui_config_item_form_alter(&$form, &$form_state) {
+  if (!empty($form['options']['settings']) && !empty($form_state['handler']) && $form_state['handler'] instanceof views_handler_field_field) {
+    $search = 'fields[' . $form_state['handler']->field_info['field_name'] . '][settings_edit_form]';
+    RenderHelper::rewriteStatesSelector($form['options']['settings'], $search, 'options');
+  }
+}
