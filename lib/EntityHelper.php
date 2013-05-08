@@ -73,6 +73,31 @@ class EntityHelper {
   }
 
   /**
+   * Remove invalid field value deltas from an entity.
+   *
+   * @param string $entity_type
+   *   An entity type.
+   * @param object $entity
+   *   An entity object.
+   */
+  public static function removeInvalidFieldDeltas($entity_type, $entity) {
+    list(, , $bundle) = entity_extract_ids($entity_type, $entity);
+    $instances = field_info_instances($entity_type, $bundle);
+    foreach (array_keys($instances) as $field_name) {
+      if (!empty($entity->{$field_name})) {
+        $field = field_info_field($field_name);
+        if ($field['cardinality'] != FIELD_CARDINALITY_UNLIMITED) {
+          foreach ($entity->{$field_name} as $langcode => $items) {
+            if (count($items) > $field['cardinality']) {
+              $entity->{$field_name}[$langcode] = array_slice($items, 0, $field['cardinality']);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /**
    * A lightweight version of entity save for field values only.
    *
    * @param string $entity_type
