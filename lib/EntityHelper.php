@@ -56,6 +56,23 @@ class EntityHelper {
   }
 
   /**
+   * Remove the empty field values from an entity.
+   *
+   * We run this on migrations because empty field values are only removed when
+   * an entity is submitted via the UI and forms, and not programmatically.
+   *
+   * @param string $entity_type
+   *   An entity type.
+   * @param object $entity
+   *   An entity object.
+   */
+  public static function removeEmptyFieldValues($entity_type, $entity) {
+    // Invoke field_default_submit() which will filter out empty field values.
+    $form = $form_state = array();
+    _field_invoke_default('submit', $entity_type, $entity, $form, $form_state);
+  }
+
+  /**
    * A lightweight version of entity save for field values only.
    *
    * @param string $entity_type
