@@ -59,10 +59,30 @@ function helper_is_tweak_enabled($tweak) {
 /**
  * Implements hook_menu_alter().
  */
-function helper_menu_alter(&$items) {
+function helper_menu_alter(array &$items) {
   if (helper_is_tweak_enabled('node_delete_tab')) {
     // Make the delete page for nodes show up as a tab.
     $items['node/%node/delete']['context'] = MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE;
+  }
+}
+
+/**
+ * Implements hook_entity_info_alter().
+ */
+function helper_entity_info_alter(array &$info) {
+  if ($info['user']['uri callback'] == 'user_uri') {
+    $info['user']['uri callback'] = 'helper_user_uri';
+  }
+}
+
+/**
+ * Implements callback_entity_info_uri().
+ *
+ * A duplicate of user_uri() that does not output a link for anonymous users.
+ */
+function helper_entity_user_uri($user) {
+  if (!empty($user->uid)) {
+    return array('path' => 'user/' . $user->uid);
   }
 }
 
