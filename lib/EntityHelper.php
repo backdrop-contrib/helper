@@ -266,4 +266,9 @@ class EntityHelper {
 
     return $build;
   }
+
+  public static function getBundleLabel($entity_type, $bundle) {
+    $info = entity_get_info($entity_type);
+    return !empty($info['bundles'][$bundle]['label']) ? $info['bundles'][$bundle]['label'] : FALSE;
+  }
 }
