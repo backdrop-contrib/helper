@@ -43,6 +43,9 @@ function helper_helper_tweak_info() {
     $info['node_comment_unpublished_count'] = array(
       'label' => t('Display unpublished comment count in node links.'),
     );
+    $info['comment_hide_disabled_subject'] = array(
+      'label' => t('Hide comment subjects if they are disabled.'),
+    );
   }
 
   return $info;
@@ -171,7 +174,6 @@ function helper_registry_files_alter(&$files, $modules) {
   }
 }
 
-
 /**
  * Implements hook_form_FORM_ID_alter().
  *
@@ -184,5 +186,15 @@ function helper_form_views_ui_config_item_form_alter(&$form, &$form_state) {
   if (!empty($form['options']['settings']) && !empty($form_state['handler']) && $form_state['handler'] instanceof views_handler_field_field) {
     $search = 'fields[' . $form_state['handler']->field_info['field_name'] . '][settings_edit_form]';
     RenderHelper::rewriteStatesSelector($form['options']['settings'], $search, 'options');
+  }
+}
+
+/**
+ * Implements hook_preprocess_comment().
+ */
+function helper_preprocess_comment(&$variables) {
+  $node = $variables['elements']['#node'];
+  if (!variable_get('comment_subject_field_' . $node->type, 1) && helper_is_tweak_enabled('comment_hide_disabled_subject')) {
+    $variables['title_attributes_array']['class'][] = 'element-invisible';
   }
 }
