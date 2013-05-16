@@ -74,7 +74,7 @@ function helper_menu_alter(array &$items) {
  */
 function helper_entity_info_alter(array &$info) {
   if ($info['user']['uri callback'] == 'user_uri') {
-    $info['user']['uri callback'] = 'helper_user_uri';
+    $info['user']['uri callback'] = 'helper_entity_user_uri';
   }
 }
 
