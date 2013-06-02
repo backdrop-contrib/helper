@@ -1,0 +1,13 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the Telephone module.
+ */
+
+/**
+ * Empty update function to trigger a registry rebuild.
+ */
+function helper_update_7000() {
+  // Do nothing.
+}
