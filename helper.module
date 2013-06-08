@@ -90,6 +90,17 @@ function helper_entity_user_uri($user) {
 }
 
 /**
+ * Implements hook_flush_caches().
+ */
+function helper_flush_caches() {
+  if (extension_loaded('apc')) {
+    apc_clear_cache();
+    apc_clear_cache('user');
+    apc_clear_cache('opcode');
+  }
+}
+
+/**
  * Implements hook_preprocess_HOOK().
  *
  * Add destination query string to local action links to take you back to

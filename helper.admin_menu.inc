@@ -21,12 +21,6 @@ function helper_admin_menu_cache_info() {
     'title' => t('Field'),
     'callback' => 'field_cache_clear',
   );
-  if (extension_loaded('apc')) {
-    $caches['apc'] = array(
-      'title' => t('APC'),
-      'callback' => 'helper_admin_menu_cache_flush_apc'),
-    );
-  }
   return $caches;
 }
 
@@ -35,15 +29,6 @@ function helper_admin_menu_cache_info() {
  */
 function helper_admin_menu_cache_flush_bootstrap() {
   cache_clear_all('*', 'cache_bootstrap', TRUE);
-}
-
-/**
- * Cache callback to clear the APC cache.
- */
-function helper_admin_menu_cache_flush_apc() {
-  apc_clear_cache();
-  apc_clear_cache('user');
-  apc_clear_cache('opcode');
 }
 
 /**
