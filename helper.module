@@ -209,3 +209,15 @@ function helper_preprocess_comment(&$variables) {
     $variables['title_attributes_array']['class'][] = 'element-invisible';
   }
 }
+
+/**
+ * Implements hook_field_widget_WIDGET_TYPE_form_alter().
+ */
+function helper_field_widget_options_select_form_alter(&$element, &$form_state, $context) {
+  // If the user has entered in a specific key/value pair for empty, then
+  // override the _none option with the user-provided one.
+  if (isset($element['#options']['']) && $element['#properties']['empty_option'] == 'option_none') {
+    $element['#options']['_none'] = $element['#options'][''];
+    unset($element['#options']['']);
+  }
+}
