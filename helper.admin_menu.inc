@@ -15,13 +15,27 @@ function helper_admin_menu_cache_info() {
   );
   $caches['entity'] = array(
     'title' => t('Entity'),
-    'callback' => 'entity_info_cache_clear',
+    'callback' => 'helper_admin_menu_cache_flush_entity',
   );
   $caches['field'] = array(
     'title' => t('Field'),
     'callback' => 'field_cache_clear',
   );
   return $caches;
+}
+
+/**
+ * Cache callback to clear the entity-related caches.
+ */
+function helper_admin_menu_cache_flush_entity() {
+  entity_info_cache_clear();
+
+  if (module_exists('entitycache')) {
+    $tables = module_invoke('entitycache', 'flush_caches');
+    foreach ($tables as $table) {
+      cache_clear_all('*', $table, TRUE);
+    }
+  }
 }
 
 /**
