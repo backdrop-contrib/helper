@@ -25,7 +25,7 @@ function helper_admin_menu_cache_info() {
 }
 
 /**
- * Cache callback to clear the entity-related caches.
+ * Cache callback to clear entity-related caches.
  */
 function helper_admin_menu_cache_flush_entity() {
   entity_info_cache_clear();
