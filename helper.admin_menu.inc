@@ -21,6 +21,12 @@ function helper_admin_menu_cache_info() {
     'title' => t('Field'),
     'callback' => 'field_cache_clear',
   );
+  if (module_exists('migrate')) {
+    $caches['migrate'] = array(
+      'title' => t('Migrate'),
+      'callback' => 'helper_admin_menu_cache_migrate',
+    );
+  }
   return $caches;
 }
 
@@ -43,6 +49,14 @@ function helper_admin_menu_cache_flush_entity() {
  */
 function helper_admin_menu_cache_flush_bootstrap() {
   cache_clear_all('*', 'cache_bootstrap', TRUE);
+}
+
+/**
+ * Cache callback to clear the migrate cache.
+ */
+function helper_admin_menu_cache_flush_migrate() {
+  registry_rebuild();
+  migrate_static_registration();
 }
 
 /**
