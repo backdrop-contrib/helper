@@ -24,7 +24,7 @@ function helper_admin_menu_cache_info() {
   if (module_exists('migrate')) {
     $caches['migrate'] = array(
       'title' => t('Migrate'),
-      'callback' => 'helper_admin_menu_cache_migrate',
+      'callback' => 'helper_admin_menu_cache_flush_migrate',
     );
   }
   return $caches;
