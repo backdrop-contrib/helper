@@ -117,6 +117,7 @@ function helper_preprocess_menu_local_action(&$variables) {
       case 'admin/reports/updates/install':
       case 'admin/structure/views/add':
       case 'admin/structure/flags/add':
+      case 'admin/structure/multifield/add':
         return;
     }
 
