@@ -154,7 +154,6 @@ function helper_url_outbound_alter(&$path, &$options, $original_path) {
       // These only should get destinations if the user is anonymous.
       $paths = array('user', 'user/login', 'user/register', 'user/password');
     }
-    $paths = !empty($paths) ? array_flip($paths) : FALSE;
     if (!empty($paths)) {
       $paths = array_flip($paths);
     }
