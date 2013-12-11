@@ -271,4 +271,16 @@ class EntityHelper {
     $info = entity_get_info($entity_type);
     return !empty($info['bundles'][$bundle]['label']) ? $info['bundles'][$bundle]['label'] : FALSE;
   }
+
+  public static function getViewModeOptions($entity_type, $only_configured = TRUE) {
+    $view_modes = array();
+    $info = entity_get_info($entity_type);
+    if (!empty($info['fieldable'])) {
+      $view_modes['default'] = t('Default');
+    }
+    if (!empty($info['view modes'])) {
+      $view_modes += ArrayHelper::extractNestedValuesToArray($info['view_modes'], array('label'));
+    }
+    return $view_modes;
+  }
 }
