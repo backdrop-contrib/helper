@@ -5,6 +5,7 @@ php = 5.3
 files[] = lib/ArrayHelper.php
 files[] = lib/CacheHelper.php
 files[] = lib/EntityHelper.php
+files[] = lib/FeaturesHelper.php
 files[] = lib/FieldHelper.php
 files[] = lib/RenderHelper.php
 files[] = includes/HelperDebugMailLog.php
