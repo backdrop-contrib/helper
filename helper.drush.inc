@@ -49,4 +49,5 @@ function helper_drush_cache_clear_entity() {
 function helper_drush_cache_clear_migrate() {
   registry_rebuild();
   migrate_static_registration();
+  cache_clear_all('migrate', 'cache', TRUE);
 }

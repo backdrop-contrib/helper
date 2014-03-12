@@ -57,6 +57,7 @@ function helper_admin_menu_cache_flush_bootstrap() {
 function helper_admin_menu_cache_flush_migrate() {
   registry_rebuild();
   migrate_static_registration();
+  cache_clear_all('migrate', 'cache', TRUE);
 }
 
 /**
