@@ -50,6 +50,7 @@ function helper_helper_tweak_info() {
   if (module_exists('honeypot')) {
     $info['honeypot_block_anonymous_ips'] = array(
       'label' => t('Block anonymous IP addresses when failing a honeypot form.'),
+      'enabled' => FALSE,
     );
   }
 
@@ -57,11 +58,29 @@ function helper_helper_tweak_info() {
 }
 
 function helper_is_tweak_enabled($tweak) {
+  $tweaks = helper_get_tweaks();
+  return !empty($tweaks[$tweak]['enabled']);
+}
+
+function helper_get_tweaks() {
   $tweaks = &drupal_static(__FUNCTION__);
+
   if (!isset($tweaks)) {
-    $tweaks = variable_get('helper_tweaks', array());
+    $tweaks = module_invoke_all('helper_tweak_info');
+    drupal_alter('helper_tweak_info', $tweaks);
+
+    $status = variable_get('helper_tweaks', array());
+    foreach ($tweaks as $tweak => $info) {
+      if (isset($status[$tweak])) {
+        $tweaks[$tweak]['enabled'] = FALSE;
+      }
+      else {
+        $tweaks[$tweak] += array('enabled' => TRUE);
+      }
+    }
   }
-  return !isset($tweaks[$tweak]) || (bool) $tweaks[$tweak];
+
+  return $tweaks;
 }
 
 /**

@@ -4,15 +4,15 @@
  *
  */
 function helper_settings_form($form) {
-  $tweaks = module_invoke_all('helper_tweak_info');
-  drupal_alter('helper_tweak_info', $tweaks);
-
+  $tweaks = helper_get_tweaks();
   $options = ArrayHelper::extractNestedValuesToArray($tweaks, array('label'));
+  $enabled = ArrayHelper::extractNestedValuesToArray($tweaks, array('enabled'));
+  $enabled = drupal_map_assoc(array_keys(array_filter($enabled)));
   $form['helper_tweaks'] = array(
     '#type' => 'checkboxes',
     '#title' => t('Enabled tweaks'),
     '#options' => $options,
-    '#default_value' => variable_get('helper_tweaks', array()) + drupal_map_assoc(array_keys($tweaks)),
+    '#default_value' => $enabled,
   );
 
   $form['#submit'][] = 'helper_settings_form_submit';
