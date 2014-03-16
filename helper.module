@@ -255,6 +255,9 @@ function helper_field_widget_options_select_form_alter(&$element, &$form_state, 
  */
 function helper_honeypot_reject($form_id, $uid, $type) {
   if (empty($uid) && helper_is_tweak_enabled('honeypot_block_anonymous_ips')) {
-    system_block_ip_action();
+    $limit = variable_get('helper_honeybot_block_anonymous_ip_threshold', 2);
+    if (!flood_is_allowed('honeypot', $limit)) {
+      system_block_ip_action();
+    }
   }
 }

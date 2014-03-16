@@ -6,6 +6,14 @@
  */
 
 /**
+ * Implements hook_uninstall().
+ */
+function helper_uninstall() {
+  variable_del('helper_tweaks');
+  variable_del('helper_honeybot_block_anonymous_ip_threshold');
+}
+
+/**
  * Empty update function to trigger a registry rebuild.
  */
 function helper_update_7000() {
