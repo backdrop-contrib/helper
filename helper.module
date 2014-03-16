@@ -47,6 +47,11 @@ function helper_helper_tweak_info() {
       'label' => t('Hide comment subjects if they are disabled.'),
     );
   }
+  if (module_exists('honeypot')) {
+    $info['honeypot_block_anonymous_ips'] = array(
+      'label' => t('Block anonymous IP addresses when failing a honeypot form.'),
+    );
+  }
 
   return $info;
 }
@@ -219,5 +224,18 @@ function helper_field_widget_options_select_form_alter(&$element, &$form_state, 
   if (isset($element['#options']['']) && $element['#properties']['empty_option'] == 'option_none') {
     $element['#options']['_none'] = $element['#options'][''];
     unset($element['#options']['']);
+  }
+}
+
+/**
+ * Implements hook_honeypot_reject().
+ *
+ * Automatically block the IP addresses of anonymous honeypot failures.
+ * @see https://drupal.org/comment/8579275#comment-8579275
+ * @see https://drupal.org/sandbox/pwetosaurus/2148397
+ */
+function helper_honeypot_reject($form_id, $uid, $type) {
+  if (empty($uid) && helper_is_tweak_enabled('honeypot_block_anonymous_ips')) {
+    system_block_ip_action();
   }
 }
