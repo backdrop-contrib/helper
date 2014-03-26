@@ -272,6 +272,11 @@ class EntityHelper {
     return !empty($info['bundles'][$bundle]['label']) ? $info['bundles'][$bundle]['label'] : FALSE;
   }
 
+  public static function getBundleOptions($entity_type) {
+    $info = entity_get_info($entity_type);
+    return !empty($info['bundles']) ? ArrayHelper::extractNestedValuesToArray($info['bundles'], array('label')) : array();
+  }
+
   public static function getViewModeOptions($entity_type, $bundle = NULL, $include_disabled = TRUE) {
     $view_modes = array();
     $info = entity_get_info($entity_type);
