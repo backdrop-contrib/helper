@@ -46,6 +46,23 @@ class CacheHelper {
   }
 
   /**
+   * A copy of cache_set() that allows multiple values to be set at once.
+   *
+   * @param array $data
+   *   An array of values to cache, keyed by the cache ID of the data to store
+   *   (cid).
+   * @param string $bin
+   *   The cache bin to store the data in.
+   * @param int $expire
+   *   The expiration value to pass to cache_set().
+   */
+  public static function setMultiple(array $data, $bin = 'cache', $expire = CACHE_PERMANENT) {
+    foreach ($data as $cid => $value) {
+      cache_set($cid, $value, $bin, $expire);
+    }
+  }
+
+  /**
    * Perform a cached HTTP request.
    *
    * @param string $url
