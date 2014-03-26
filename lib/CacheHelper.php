@@ -42,6 +42,7 @@ class CacheHelper {
     if ($cache->expire > 0 && $cache->expire < REQUEST_TIME) {
       return FALSE;
     }
+    return TRUE;
   }
 
   /**
