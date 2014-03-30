@@ -24,7 +24,10 @@ class ProfileHelper {
       );
       $query->values($block);
     }
-    $query->execute();
+
+    if (!empty($blocks)) {
+      $query->execute();
+    }
   }
 
   public static function installFields(array $fields) {
