@@ -13,11 +13,13 @@ class ProfileHelper {
     }
 
     $query = db_insert('block');
-    $query->fields(array('module', 'delta', 'theme', 'status', 'weight', 'region', 'pages', 'title', 'cache'));
+    $query->fields(array('module', 'delta', 'theme', 'status', 'weight', 'region', 'visibility', 'pages', 'title', 'cache'));
     foreach ($blocks as $block) {
       $block += array(
         'theme' => $theme,
         'status' => 1,
+        'weight' => 0,
+        'visibility' => BLOCK_VISIBILITY_NOTLISTED,
         'pages' => '',
         'title' => '',
         'cache' => DRUPAL_NO_CACHE,
