@@ -133,21 +133,23 @@ function helper_flush_caches() {
 function helper_preprocess_menu_local_action(&$variables) {
   if (helper_is_tweak_enabled('local_action_destination')) {
     $link = &$variables['element']['#link'];
+    if (isset($link['href'])) {
 
-    // Some local actions need to be whitelisted as having a redirect causes bugs.
-    switch ($link['path']) {
-      case 'admin/appearance/install':
-      case 'admin/modules/install':
-      case 'admin/reports/updates/install':
-      case 'admin/structure/views/add':
-      case 'admin/structure/flags/add':
-      case 'admin/structure/multifield/add':
-        return;
+      // Some local actions need to be whitelisted as having a redirect causes bugs.
+      switch ($link['href']) {
+        case 'admin/appearance/install':
+        case 'admin/modules/install':
+        case 'admin/reports/updates/install':
+        case 'admin/structure/views/add':
+        case 'admin/structure/flags/add':
+        case 'admin/structure/multifield/add':
+          return;
+      }
+
+      $link += array('localized_options' => array());
+      $link['localized_options'] += array('query' => array());
+      $link['localized_options']['query'] += drupal_get_destination();
     }
-
-    $link += array('localized_options' => array());
-    $link['localized_options'] += array('query' => array());
-    $link['localized_options']['query'] += drupal_get_destination();
   }
 }
 
