@@ -263,3 +263,28 @@ function helper_honeypot_reject($form_id, $uid, $type) {
     }
   }
 }
+
+/**
+ * Implements hook_cron().
+ */
+function helper_cron() {
+  // Remove deleted *and inactive* fields since field_purge_batch() will not.
+  module_load_include('inc', 'helper', 'helper.field');
+  _helper_purge_inactive_deleted_fields();
+}
+
+/**
+ * Implements hook_modules_uninstalled().
+ */
+function helper_modules_uninstalled(array $modules) {
+  // Find fields owned by the uninstalled modules and force delete them.
+  module_load_include('inc', 'helper', 'helper.field');
+  $fields = field_read_fields(array('module' => array($modules)), array('include_inactive' => 1));
+  foreach ($fields as $field) {
+    _helper_field_delete_field($field);
+    watchdog('helper', 'Deleted inactive field @field_name since the @module module was uninstalled.', array('@field_name' => $field['field_name'], '@module' => $field['module']));
+  }
+
+  // Remove deleted *and inactive* fields since field_purge_batch() will not.
+  _helper_purge_inactive_deleted_fields();
+}
