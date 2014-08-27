@@ -1,0 +1,37 @@
+<?php
+
+include __DIR__ . '/../lib/ArrayHelper.php';
+
+class ArrayHelperTest extends DrupalUnitTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'ArrayHelper',
+      'description' => 'Tests for the ArrayHelper class.',
+      'group' => 'Helper',
+    );
+  }
+
+  function testMapKeys() {
+    $input = array(
+      'a' => 1,
+      'b' => '1',
+      'c' => 1,
+      0 => '2',
+      1 => 2,
+    );
+    $expected = array(
+      '#a' => 1,
+      '#b' => '1',
+      '#c' => 1,
+      '#0' => '2',
+      '#1' => 2,
+    );
+
+    $result = ArrayHelper::mapKeys($input, function($value) {
+      return '#' . $value;
+    });
+    $this->assertIdentical($result, $expected);
+  }
+
+}

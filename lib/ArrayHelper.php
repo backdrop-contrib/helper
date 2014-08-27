@@ -50,4 +50,8 @@ class ArrayHelper {
     }
     return $return;
   }
+
+  public static function mapKeys($array, $callback) {
+    return array_combine(array_map($callback, array_combine(array_keys($array), array_keys($array))), $array);
+  }
 }
