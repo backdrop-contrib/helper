@@ -28,9 +28,9 @@ class ArrayHelperTest extends DrupalUnitTestCase {
       '#1' => 2,
     );
 
-    $result = ArrayHelper::mapKeys($input, function($value) {
+    $result = ArrayHelper::mapKeys(function($value) {
       return '#' . $value;
-    });
+    }, $input);
     $this->assertIdentical($result, $expected);
   }
 

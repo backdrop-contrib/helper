@@ -51,7 +51,19 @@ class ArrayHelper {
     return $return;
   }
 
-  public static function mapKeys($array, $callback) {
+  /**
+   * Applies the callback to the keys of the given array.
+   *
+   * @param callable $callback
+   *   Callback function to run for each key in the array.
+   * @param array $array
+   *   An array to run through the callback function.
+   *
+   * @return array
+   *   Returns an array containing all the elements of $array after applying
+   *   the callback function to each key.
+   */
+  public static function mapKeys($callback, array $array) {
     return array_combine(array_map($callback, array_combine(array_keys($array), array_keys($array))), $array);
   }
 }
