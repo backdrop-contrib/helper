@@ -12,7 +12,7 @@ class RenderHelper {
    * @param string $replace
    *   The string to replace all instances of $search with.
    */
-  function rewriteStatesSelector(array &$elements, $search, $replace) {
+  public static function rewriteStatesSelector(array &$elements, $search, $replace) {
     if (!empty($elements['#states'])) {
       foreach ($elements['#states'] as $state => $ids) {
         foreach ($ids as $id => $value) {
