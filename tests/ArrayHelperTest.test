@@ -12,6 +12,36 @@ class ArrayHelperTest extends DrupalUnitTestCase {
     );
   }
 
+  function testNestedValue() {
+    $input = array(
+      0 => array('test' => 'foo', 'keys' => array('first', 'a')),
+      1 => (object) array('test' => 'bar', 'keys' => array('second', 'b')),
+      2 => new ArrayHelperTestObject(array('test' => 'foo', 'keys' => array('third', 'c'))),
+    );
+
+    $this->assertIdentical(ArrayHelper::filterByNestedValue($input, array('test'), 'foo'),
+      array(0 => $input[0], 2 => $input[2])
+    );
+    $this->assertIdentical(ArrayHelper::filterByNestedValue($input, array('test'), 'bar'),
+      array(1 => $input[1])
+    );
+    $this->assertIdentical(ArrayHelper::filterByNestedValue($input, array('test'), 'ferzle'),
+      array()
+    );
+    $this->assertIdentical(ArrayHelper::extractNestedValuesToArray($input, array('test')),
+      array(0 => 'foo', 1 => 'bar', 2 => 'foo')
+    );
+    $this->assertIdentical(ArrayHelper::extractNestedValuesToArray($input, array('test'), array('keys', 0)),
+      array('first' => 'foo', 'second' => 'bar', 'third' => 'foo')
+    );
+    $this->assertIdentical(ArrayHelper::extractNestedValuesToArray($input, array('test'), array('keys', 1)),
+      array('a' => 'foo', 'b' => 'bar', 'c' => 'foo')
+    );
+    $this->assertIdentical(ArrayHelper::extractNestedValuesToArray($input, array('invalid')),
+      array()
+    );
+  }
+
   function testMapKeys() {
     $input = array(
       'a' => 1,
@@ -34,4 +64,22 @@ class ArrayHelperTest extends DrupalUnitTestCase {
     $this->assertIdentical($result, $expected);
   }
 
+}
+
+class ArrayHelperTestObject {
+  private $data;
+
+  public function __construct(array $data = array()) {
+    $this->data = $data;
+  }
+
+  public function __get($key) {
+    if (array_key_exists($key, $this->data)) {
+      return $this->data[$key];
+    }
+  }
+
+  public function __set($key, $value) {
+    $this->data[$key] = $value;
+  }
 }

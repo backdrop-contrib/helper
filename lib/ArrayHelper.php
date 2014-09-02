@@ -45,8 +45,15 @@ class ArrayHelper {
   public static function extractNestedValuesToArray(array $items, array $value_parents, array $key_parents = NULL) {
     $return = array();
     foreach ($items as $index => $item) {
-      $key = isset($key_parents) ? static::getNestedValue($item, $key_parents) : $index;
-      $return[$key] = static::getNestedValue($item, $value_parents);
+      $key_exists = FALSE;
+      $value = static::getNestedValue($item, $value_parents, $key_exists);
+      if ($key_exists) {
+        $key = isset($key_parents) ? static::getNestedValue($item, $key_parents, $key_exists) : $index;
+        if (!$key_exists || !isset($key)) {
+          $key = $index;
+        }
+        $return[$key] = $value;
+      }
     }
     return $return;
   }
