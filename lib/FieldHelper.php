@@ -5,7 +5,8 @@ class FieldHelper {
   public static function getValues($entity_type, $entity, $field_name, $column = NULL) {
     if (!empty($entity) && $items = field_get_items($entity_type, $entity, $field_name)) {
       if (isset($column)) {
-        $items = ArrayHelper::extractNestedValuesToArray($items, array($column));
+        $value_parents = is_array($column) ? $column : array($column);
+        $items = ArrayHelper::extractNestedValuesToArray($items, $value_parents);
       }
 
       return $items;
@@ -22,7 +23,8 @@ class FieldHelper {
 
   public static function extractValues($entity_type, $entity, $field, $column) {
     if (!empty($entity) && $items = field_get_items($entity_type, $entity, $field)) {
-      return ArrayHelper::extractNestedValuesToArray($items, array($column));
+      $value_parents = is_array($column) ? $column : array($column);
+      return ArrayHelper::extractNestedValuesToArray($items, $value_parents);
     }
     return array();
   }
