@@ -28,4 +28,12 @@ class RenderHelper {
       static::rewriteStatesSelector($elements[$key], $search, $replace);
     }
   }
+
+  public static function filterElementChildren(array $elements) {
+    return array_intersect_key($elements, array_flip(element_children($elements)));
+  }
+
+  public static function filterVisibleElementChildren(array $elements) {
+    return array_intersect_key($elements, array_flip(element_get_visible_children($elements)));
+  }
 }
