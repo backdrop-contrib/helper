@@ -73,4 +73,20 @@ class ArrayHelper {
   public static function mapKeys($callback, array $array) {
     return array_combine(array_map($callback, array_combine(array_keys($array), array_keys($array))), $array);
   }
+
+  /**
+   * Filters keys of an array using a callback function.
+   *
+   * @param callable $callback
+   *   The callback function to use. If no callback is supplied, all keys of
+   *   array equal to FALSE will be removed.
+   * @param array $array
+   *   The array to iterate over.
+   *
+   * @return array
+   *   Returns the filtered array.
+   */
+  public static function filterArrayKeys(array $array, $callback) {
+    return array_intersect_key($array, array_flip(array_filter(array_keys($array), $callback)));
+  }
 }
