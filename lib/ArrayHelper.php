@@ -86,7 +86,7 @@ class ArrayHelper {
    * @return array
    *   Returns the filtered array.
    */
-  public static function filterArrayKeys(array $array, $callback) {
+  public static function filterKeys(array $array, $callback) {
     return array_intersect_key($array, array_flip(array_filter(array_keys($array), $callback)));
   }
 }

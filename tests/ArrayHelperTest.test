@@ -69,12 +69,12 @@ class ArrayHelperTest extends DrupalUnitTestCase {
     $expected1 = array_fill_keys(array(0, 3, 6, 9), 'test');
     $expected2 = array_fill_keys(array(1, 2, 4, 5, 7, 8, 10), 'test');
 
-    $result = ArrayHelper::filterArrayKeys($input, function($value) {
+    $result = ArrayHelper::filterKeys($input, function($value) {
       return $value % 3 === 0;
     }, $input);
     $this->assertIdentical($result, $expected1);
 
-    $result = ArrayHelper::filterArrayKeys($input, function($value) {
+    $result = ArrayHelper::filterKeys($input, function($value) {
       return $value % 3;
     }, $input);
     $this->assertIdentical($result, $expected2);
