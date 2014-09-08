@@ -47,6 +47,15 @@ class FieldHelper {
     }
   }
 
+  public static function viewValues($entity_type, $entity, $field_name, $display = array(), $langcode = NULL) {
+    if (module_exists('render_cache') && function_exists('render_cache_view_field')) {
+      return render_cache_view_field($entity_type, $entity, $field_name, $display, $langcode);
+    }
+    else {
+      return field_view_field($entity_type, $entity, $field_name, $display, $langcode);
+    }
+  }
+
   public static function viewValue($entity_type, $entity, $field_name, $delta = 0, $display = array(), $langcode = NULL) {
     $output = array();
 
@@ -58,7 +67,7 @@ class FieldHelper {
       // field_view_field() to build the render array for the whole field.
       $clone = clone $entity;
       $clone->{$field_name}[$langcode] = array($item);
-      $elements = field_view_field($entity_type, $clone, $field_name, $display, $langcode);
+      $elements = static::viewValues($entity_type, $clone, $field_name, $display, $langcode);
 
       // Extract the part of the render array we need.
       $output = isset($elements[0]) ? $elements[0] : array();
