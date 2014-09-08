@@ -301,4 +301,26 @@ class EntityHelper {
 
     return $view_modes;
   }
+
+  public static function view($entity_type, $entity, $view_mode = 'default', $langcode = NULL, $page = NULL) {
+    if ($output = static::viewMultiple($entity_type, array($entity), $view_mode, $langcode, $page)) {
+      return reset($output);
+    }
+    else {
+      return FALSE;
+    }
+  }
+
+  public static function viewMultiple($entity_type, array $entities, $view_mode = 'default', $langcode = NULL, $page = NULL) {
+    if (empty($entities)) {
+      return array();
+    }
+
+    if (!function_exists('entity_view')) {
+      throw new Exception("Cannot use EntityHelper::viewMultiple() without the Entity API module enabled.");
+    }
+
+    $output = entity_view($entity_type, $entities, $view_mode, $langcode, $page);
+    return !empty($output[$entity_type]) ? $output[$entity_type] : array();
+  }
 }
