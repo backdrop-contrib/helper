@@ -2,7 +2,7 @@
 
 class FieldChangeHelper {
 
-  public static function changeType($field_name, $type, array $column_renames = array(), array $field_config = array(), array $field_instance_config = array()) {
+  public static function changeType($field_name, $type, array $column_renames = array(), array $field_overrides = array(), array $field_instance_overrides = array()) {
     $field = $prior_field = field_read_field($field_name);
     if (empty($field)) {
       throw new Exception("Field $field_name does not exist or is inactive or deleted.");
@@ -35,6 +35,7 @@ class FieldChangeHelper {
           case 'active':
           case 'locked':
           case 'cardinality':
+          case 'deleted':
             break;
 
           default:
@@ -47,17 +48,20 @@ class FieldChangeHelper {
       $field['module'] = $type_info['module'];
       $field['settings'] = array_intersect_key($field['settings'], $type_info['settings']);
       $field['settings'] += $type_info['settings'];
-      $field = drupal_array_merge_deep($field, $field_config);
-
-      static::changeSchema($field, $column_renames);
 
       // @todo Check if $field['translatable'] needs to be changed.
 
-      // Save the field config back to the database.
+      // Make any final field overrides before updating the schema and saving
+      // the field config record back to the database.
+      $field = drupal_array_merge_deep($field, $field_overrides);
+      static::changeSchema($field, $column_renames);
       drupal_write_record('field_config', $field, array('id'));
 
+      // Now update the instances for this field.
+      static::changeInstances($field, $field_instance_overrides);
+
       // Clear caches
-      field_cache_clear(TRUE);
+      field_cache_clear();
 
       // Invoke external hooks after the cache is cleared for API consistency.
       $has_data = field_has_data($field);
@@ -186,7 +190,53 @@ class FieldChangeHelper {
     }
   }
 
-  public static function changeInstances(array $field) {
+  public static function changeInstances(array $field, array $field_instance_overrides = array()) {
+    $type_info = field_info_field_types($field['type']);
+    $instances = field_read_instances(array('field_name' => $field['field_name']));
 
+    foreach ($instances as $instance) {
+      $prior_instance = $instance;
+
+      // Serialize properties back into the data property so it can be saved
+      // to the database.
+      $instance['data'] = array();
+      foreach ($instance as $key => $value) {
+        switch ($key) {
+          case 'id':
+          case 'field_id':
+          case 'field_name':
+          case 'entity_type':
+          case 'bundle':
+          case 'deleted':
+            break;
+
+          default:
+            $instance['data'][$key] = &$instance[$key];
+        }
+      }
+
+      $instance['settings'] = array_intersect_key($instance['settings'], $type_info['instance_settings']);
+      $instance['settings'] += $type_info['instance_settings'];
+
+      $widget_info = field_info_widget_types($instance['widget']['type']);
+      if (!in_array($widget_info['field types'], $field['type'])) {
+        $instance['widget']['type'] = $type_info['default_widget'];
+        $widget_info = field_info_widget_types($type_info['default_widget']);
+        $instance['widget']['settings'] = array_intersect_key($instance['widget']['settings'], $widget_info['settings']);
+        $instance['widget']['settings'] += $widget_info['settings'];
+      }
+
+      // @todo Validate current formatters. If invalid, change to field type's default formatter.
+
+      $instance = drupal_array_merge_deep($instance, $field_instance_overrides);
+
+      //drupal_write_record('field_config_instance', $instance, array('id'));
+      _field_write_instance($instance, TRUE);
+
+      // Clear caches.
+      field_cache_clear();
+
+      module_invoke_all('field_update_instance', $instance, $prior_instance);
+    }
   }
 }
