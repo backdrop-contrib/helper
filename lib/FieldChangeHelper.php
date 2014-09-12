@@ -247,8 +247,10 @@ class FieldChangeHelper {
       $instance['settings'] = array_intersect_key($instance['settings'], $type_info['instance_settings']);
       $instance['settings'] += $type_info['instance_settings'];
 
+      // Validate the existing widget can be used with the new field type.
       $widget_info = field_info_widget_types($instance['widget']['type']);
       if (!in_array($field['type'], $widget_info['field types'])) {
+        // Fallback to using the field type's default widget.
         $instance['widget']['type'] = $type_info['default_widget'];
         $widget_info = field_info_widget_types($type_info['default_widget']);
         $instance['widget']['module'] = $widget_info['module'];
@@ -256,12 +258,26 @@ class FieldChangeHelper {
         $instance['widget']['settings'] += $widget_info['settings'];
       }
 
-      // @todo Validate current formatters. If invalid, change to field type's default formatter.
+      // Validate the existing formatters can be used with the new field type.
+      foreach ($instance['display'] as $view_mode => $display) {
+        if ($display['type'] !== 'hidden') {
+          $formatter_info = field_info_formatter_types($display['type']);
+          if (!in_array($field['type'], $formatter_info['field types'])) {
+            // Fallback to using the field type's default formatter.
+            $instance['display'][$view_mode]['type'] = $type_info['default_formatter'];
+            $formatter_info = field_info_formatter_types($type_info['default_formatter']);
+            $instance['display'][$view_mode]['module'] = $formatter_info['module'];
+            $instance['display'][$view_mode]['settings'] = array_intersect_key($instance['display'][$view_mode], $formatter_info['settings']);
+            $instance['display'][$view_mode]['settings'] += $formatter_info['settings'];
 
+          }
+        }
+      }
+
+      // Allow anything to be overridden before it gets saved.
       $instance = drupal_array_merge_deep($instance, $field_instance_overrides);
 
       drupal_write_record('field_config_instance', $instance, array('id'));
-      //_field_write_instance($instance, TRUE);
 
       // Clear caches.
       field_cache_clear();
