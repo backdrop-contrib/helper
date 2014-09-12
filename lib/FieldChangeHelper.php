@@ -2,6 +2,33 @@
 
 class FieldChangeHelper {
 
+  /**
+   * Change a field's type, even if it has data.
+   *
+   * @param $field_name
+   *   The name of the field to change.
+   * @param $type
+   *   The type of field to change it to.
+   * @param array $column_renames
+   *   An array of existing field schema columns to rename. For example, if the
+   *   old field type has a column 'value' which maps to the new field type's
+   *   'data' column, use array('value' => 'data') to ensure the old column
+   *   is just renamed instead of dropped. To ensure an old field column is
+   *   dropped, for example, if the same column name is used in the new
+   *   field type, but is used to store different data, use
+   *   array('old_column' => FALSE).
+   * @param array $field_overrides
+   *   An optional array that overrides any of the values in the $field
+   *   definition array prior to saving.
+   * @param array $field_instance_overrides
+   *   An optional array that overrides any of the values in any of the field's
+   *   instance definition array prior to saving.
+   *
+   * @return array
+   *   The change field if everything was successful.
+   *
+   * @throws Exception
+   */
   public static function changeType($field_name, $type, array $column_renames = array(), array $field_overrides = array(), array $field_instance_overrides = array()) {
     $field = $prior_field = field_read_field($field_name);
     if (empty($field)) {
