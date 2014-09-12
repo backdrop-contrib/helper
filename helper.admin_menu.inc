@@ -27,6 +27,12 @@ function helper_admin_menu_cache_info() {
       'callback' => 'helper_admin_menu_cache_flush_migrate',
     );
   }
+  if (module_exists('views')) {
+    $caches['views'] = array(
+      'title' => t('Views'),
+      'callback' => 'views_invalidate_cache',
+    );
+  }
   return $caches;
 }
 

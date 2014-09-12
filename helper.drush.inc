@@ -18,6 +18,9 @@ function helper_drush_cache_clear(&$types) {
       if (function_exists('module_exists') && module_exists('migrate')) {
         $types['migrate'] = 'helper_drush_cache_clear_migrate';
       }
+      if (function_exists('module_exists') && module_exists('views')) {
+        $types['views'] = 'views_invalidate_cache';
+      }
     }
   }
 }
