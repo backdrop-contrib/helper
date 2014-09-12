@@ -63,6 +63,7 @@ class FieldChangeHelper {
           case 'locked':
           case 'cardinality':
           case 'deleted':
+          case 'data':
             break;
 
           default:
@@ -235,6 +236,7 @@ class FieldChangeHelper {
           case 'entity_type':
           case 'bundle':
           case 'deleted':
+          case 'data':
             break;
 
           default:
