@@ -143,4 +143,194 @@ class FieldHelper {
       return $results;
     }
   }
+
+  public static function readFieldByID($id, $include_deleted = TRUE, $include_inactive = TRUE) {
+    $fields = field_read_fields(array('id' => $id), array('include_deleted' => $include_deleted, 'include_inactive' => $include_inactive));
+    return !empty($fields) ? reset($fields) : FALSE;
+  }
+
+  public static function readInstanceByID($id, $include_deleted = TRUE, $include_inactive = TRUE) {
+    $fields = field_read_instances(array('id' => $id), array('include_deleted' => $include_deleted, 'include_inactive' => $include_inactive));
+    return !empty($fields) ? reset($fields) : FALSE;
+  }
+
+  /**
+   * Delete a field instance.
+   *
+   * This is a clone of field_delete_instance() that works for inactive fields.
+   *
+   * @param array $instance
+   *   The field instance definition. This may be deleted or inactive.
+   * @param bool $purge
+   * @param bool $field_cleanup
+   *
+   * @throws FieldException
+   */
+  public static function deleteInstance(array $instance, $purge = TRUE, $field_cleanup = TRUE) {
+    $field = static::readFieldById($instance['field_id']);
+    $instance = static::readInstanceById($instance['id']);
+
+    if (empty($instance)) {
+      throw new FieldException();
+    }
+    if (!module_exists($field['storage']['module'])) {
+      throw new FieldException("The {$field['storage']['module']} module needs to be enabled in order to delete an instance ID {$instance['id']} from field ID {$field['id']}.");
+    }
+
+    if (empty($instance['deleted'])) {
+      // Mark the field instance for deletion.
+      db_update('field_config_instance')->fields(array('deleted' => 1))->condition('field_name', $instance['field_name'])->condition('entity_type', $instance['entity_type'])->condition('bundle', $instance['bundle'])->execute();
+
+      // Clear the cache.
+      field_cache_clear();
+
+      // Mark instance data for deletion.
+      module_invoke($field['storage']['module'], 'field_storage_delete_instance', $instance);
+
+      // Let modules react to the deletion of the instance.
+      module_invoke_all('field_delete_instance', $instance);
+
+      watchdog('helper', "Marked field instance ID {$instance['id']} for deletion.");
+    }
+
+    if ($purge) {
+      static::purgeInstanceData($instance);
+      static::purgeInstance($instance);
+    }
+
+    if ($field_cleanup && !field_read_instances(array('field_id' => $field['id']), array('include_deleted' => TRUE, 'include_inactive' => TRUE))) {
+      static::deleteField($field);
+    }
+  }
+
+  /**
+   * Purge all data from a field instance.
+   *
+   * @param array $instance
+   *   The field instance definition. This may be deleted or inactive.
+   */
+  public static function purgeInstanceData(array $instance) {
+    $field = static::readFieldByID($instance['field_id']);
+    $data_table = _field_sql_storage_tablename($field);
+
+    // Ensure the entity caches are cleared for the changed entities.
+    if ($ids = db_query("SELECT entity_id FROM {$data_table} WHERE entity_type = :type AND bundle = :bundle", array(':type' => $instance['entity_type'], ':bundle' => $instance['bundle']))->fetchCol()) {
+      entity_get_controller($instance['entity_type'])->resetCache($ids);
+      db_delete($data_table)
+        ->condition('entity_type', $instance['entity_type'])
+        ->condition('bundle', $instance['bundle'])
+        ->execute();
+    }
+
+    $revision_table = _field_sql_storage_revision_tablename($field);
+    if (db_table_exists($revision_table)) {
+      db_delete($revision_table)
+        ->condition('entity_type', $instance['entity_type'])
+        ->condition('bundle', $instance['bundle'])
+        ->execute();
+    }
+
+    watchdog('helper', "Purged data for field instance ID {$instance['id']}.");
+  }
+
+  public static function purgeInstance(array $instance) {
+    $field = static::readFieldByID($instance['field_id']);
+    $instance = static::readInstanceById($instance['id']);
+
+    if (empty($instance['deleted'])) {
+      throw new FieldException("Field instance not yet marked as deleted.");
+    }
+    if (!module_exists($field['storage']['module'])) {
+      throw new FieldException("The {$field['storage']['module']} module needs to be enabled in order to delete an instance ID {$instance['id']} from field ID {$field['id']}.");
+    }
+
+    db_delete('field_config_instance')->condition('id', $instance['id'])->execute();
+
+    // Notify the storage engine.
+    module_invoke($field['storage']['module'], 'field_storage_purge_instance', $instance);
+
+    // Clear the cache.
+    field_info_cache_clear();
+
+    // Invoke external hooks after the cache is cleared for API consistency.
+    module_invoke_all('field_purge_instance', $instance);
+
+    watchdog('helper', "Field instance ID {$instance['id']} completely removed.");
+  }
+
+  /**
+   * Delete a field.
+   *
+   * This is a clone of field_delete_field() that works for inactive fields.
+   *
+   * @param array $field
+   *   The field definition. This may be deleted or inactive.
+   * @param bool $purge
+   *
+   * @throws FieldException
+   */
+  public static function deleteField(array $field, $purge = TRUE) {
+    $field = static::readFieldById($field['id']);
+
+    if (empty($fields)) {
+      throw new FieldException();
+    }
+    if (!module_exists($field['storage']['module'])) {
+      throw new FieldException("The {$field['storage']['module']} module needs to be enabled in order to delete field ID {$field['id']}.");
+    }
+
+    if ($instances = field_read_instances(array('field_id' => $field['id']), array('include_deleted' => TRUE, 'include_inactive' => TRUE))) {
+      foreach ($instances as $instance) {
+        static::deleteInstance($instance, $purge, FALSE);
+      }
+    }
+
+    if (empty($field['deleted'])) {
+      // Mark field data for deletion.
+      module_invoke($field['storage']['module'], 'field_storage_delete_field', $field);
+
+      // Mark the field for deletion.
+      db_update('field_config')->fields(array('deleted' => 1))->condition('field_name', $field['field_name'])->execute();
+
+      // Clear the cache.
+      field_cache_clear(TRUE);
+
+      module_invoke_all('field_delete_field', $field);
+
+      watchdog('helper', "Marked field ID {$field['id']} for deletion.");
+    }
+
+    if ($purge) {
+      static::purgeField($field);
+    }
+  }
+
+  public static function purgeField(array $field) {
+    $field = static::readFieldById($field['id']);
+
+    if (empty($field['deleted'])) {
+      throw new FieldException("Field not yet marked as deleted.");
+    }
+    if (!module_exists($field['storage']['module'])) {
+      throw new FieldException("The {$field['storage']['module']} module needs to be enabled in order to delete field ID {$field['id']}.");
+    }
+
+    $instances = field_read_instances(array('field_id' => $field['id']), array('include_deleted' => TRUE, 'include_inactive' => TRUE));
+    if (count($instances) > 0) {
+      throw new FieldException(t('Attempt to purge a field @field_name that still has instances.', array('@field_name' => $field['field_name'])));
+    }
+
+    db_delete('field_config')->condition('id', $field['id'])->execute();
+
+    // Notify the storage engine.
+    module_invoke($field['storage']['module'], 'field_storage_purge_field', $field);
+
+    // Clear the cache.
+    field_info_cache_clear();
+
+    // Invoke external hooks after the cache is cleared for API consistency.
+    module_invoke_all('field_purge_field', $field);
+
+    watchdog('helper', "Field ID {$field['id']} completely removed.");
+  }
 }
