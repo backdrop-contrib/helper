@@ -251,6 +251,7 @@ class FieldChangeHelper {
       if (!in_array($field['type'], $widget_info['field types'])) {
         $instance['widget']['type'] = $type_info['default_widget'];
         $widget_info = field_info_widget_types($type_info['default_widget']);
+        $instance['widget']['module'] = $widget_info['module'];
         $instance['widget']['settings'] = array_intersect_key($instance['widget']['settings'], $widget_info['settings']);
         $instance['widget']['settings'] += $widget_info['settings'];
       }
@@ -259,8 +260,8 @@ class FieldChangeHelper {
 
       $instance = drupal_array_merge_deep($instance, $field_instance_overrides);
 
-      //drupal_write_record('field_config_instance', $instance, array('id'));
-      _field_write_instance($instance, TRUE);
+      drupal_write_record('field_config_instance', $instance, array('id'));
+      //_field_write_instance($instance, TRUE);
 
       // Clear caches.
       field_cache_clear();
