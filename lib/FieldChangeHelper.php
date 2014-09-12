@@ -246,7 +246,7 @@ class FieldChangeHelper {
       $instance['settings'] += $type_info['instance_settings'];
 
       $widget_info = field_info_widget_types($instance['widget']['type']);
-      if (!in_array($widget_info['field types'], $field['type'])) {
+      if (!in_array($field['type'], $widget_info['field types'])) {
         $instance['widget']['type'] = $type_info['default_widget'];
         $widget_info = field_info_widget_types($type_info['default_widget']);
         $instance['widget']['settings'] = array_intersect_key($instance['widget']['settings'], $widget_info['settings']);
