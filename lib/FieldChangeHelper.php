@@ -286,18 +286,18 @@ class FieldChangeHelper {
     }
   }
 
-  public static function changeInstanceField($instance, $new_field_name) {
+  public static function changeInstanceField(array $instance, $new_field_name) {
     $old_field = field_info_field($instance['field_name']);
     $new_field = field_info_field($new_field_name);
 
     if ($old_field['type'] != $new_field['type']) {
-      throw new Exception("Cannot change field instance because they are not the same field type.");
+      throw new FieldException("Cannot change field instance because they are not the same field type.");
     }
     if ($old_field['storage']['type'] !== 'field_sql_storage') {
-      throw new Exception("Unable to change field type for field {$old_field['field_name']} using storage {$old_field['storage']['type']}.");
+      throw new FieldException("Unable to change field type for field {$old_field['field_name']} using storage {$old_field['storage']['type']}.");
     }
     if ($new_field['storage']['type'] !== 'field_sql_storage') {
-      throw new Exception("Unable to change field type for field {$new_field['field_name']} using storage {$new_field['storage']['type']}.");
+      throw new FieldException("Unable to change field type for field {$new_field['field_name']} using storage {$new_field['storage']['type']}.");
     }
 
     if (!field_info_instance($instance['entity_type'], $new_field_name, $instance['bundle'])) {
@@ -338,19 +338,19 @@ class FieldChangeHelper {
     $new_field = field_info_field($new_field_name);
 
     if (empty($old_field)) {
-      throw new Exception("Field {$old_field_name} does not exist.");
+      throw new FieldException("Field {$old_field_name} does not exist.");
     }
     if (empty($new_field)) {
-      throw new Exception("Field {$new_field_name} does not exist.");
+      throw new FieldException("Field {$new_field_name} does not exist.");
     }
     if ($old_field['type'] != $new_field['type']) {
-      throw new Exception("Cannot merge fields because they are not the same field type.");
+      throw new FieldException("Cannot merge fields because they are not the same field type.");
     }
     if ($old_field['storage']['type'] !== 'field_sql_storage') {
-      throw new Exception("Unable to change field type for field {$old_field['field_name']} using storage {$old_field['storage']['type']}.");
+      throw new FieldException("Unable to change field type for field {$old_field['field_name']} using storage {$old_field['storage']['type']}.");
     }
     if ($new_field['storage']['type'] !== 'field_sql_storage') {
-      throw new Exception("Unable to change field type for field {$new_field['field_name']} using storage {$new_field['storage']['type']}.");
+      throw new FieldException("Unable to change field type for field {$new_field['field_name']} using storage {$new_field['storage']['type']}.");
     }
 
     $instances = field_read_instances(array('field_name' => $old_field_name));

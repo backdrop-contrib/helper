@@ -272,7 +272,7 @@ class FieldHelper {
   public static function deleteField(array $field, $purge = TRUE) {
     $field = static::readFieldById($field['id']);
 
-    if (empty($fields)) {
+    if (empty($field)) {
       throw new FieldException();
     }
     if (!module_exists($field['storage']['module'])) {
