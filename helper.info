@@ -7,6 +7,7 @@ files[] = lib/CacheHelper.php
 files[] = lib/EntityHelper.php
 files[] = lib/FeaturesHelper.php
 files[] = lib/FieldHelper.php
+files[] = lib/FieldChangeHelper.php
 files[] = lib/HttpHelper.php
 files[] = lib/ProflieHelper.php
 files[] = lib/RenderHelper.php
