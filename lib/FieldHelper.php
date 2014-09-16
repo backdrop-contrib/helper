@@ -14,9 +14,16 @@ class FieldHelper {
   }
 
   public static function getValue($entity_type, $entity, $field_name, $column = NULL, $delta = 0) {
-    $items = static::getValues($entity_type, $entity, $field_name, $column);
-    if (isset($items[$delta])) {
-      return $items[$delta];
+    $items = static::getValues($entity_type, $entity, $field_name);
+    if (isset($column)) {
+      if (isset($items[$delta][$column])) {
+        return $items[$delta][$column];
+      }
+    }
+    else {
+      if (isset($items[$delta])) {
+        return $items[$delta];
+      }
     }
   }
 
