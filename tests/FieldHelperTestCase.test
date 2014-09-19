@@ -1,0 +1,82 @@
+<?php
+
+class FieldHelperTestCase extends DrupalWebTestCase {
+  protected $profile = 'testing';
+
+  public static function getInfo() {
+    return array(
+      'name' => 'FieldHelper',
+      'description' => 'Tests for the FieldHelper class.',
+      'group' => 'Helper',
+    );
+  }
+
+  public function setUp() {
+    parent::setUp(array('helper', 'file', 'image', 'taxonomy', 'entityreference'));
+    //$this->contentType = $this->drupalCreateContentType();
+  }
+
+  protected function createField($type, array $extra = array()) {
+    $field = array('field_name' => 'field_' . $type, 'type' => $type);
+    $field = drupal_array_merge_deep($field, $extra);
+    return field_create_field($field);
+  }
+
+  public function testGetReferencingFields() {
+    $this->assertFalse(FieldHelper::getReferencingFields());
+
+    $this->createField('file');
+    $this->assertEqual(count(FieldHelper::getReferencingFields()), 1);
+    $this->assertEqual(FieldHelper::getReferencingFields('field_file'), array(
+      'fid' => 'file',
+    ));
+
+    $this->createField('image');
+    $this->assertEqual(count(FieldHelper::getReferencingFields()), 2);
+    $this->assertEqual(FieldHelper::getReferencingFields('field_image'), array(
+      'fid' => 'file',
+    ));
+
+    $vocabulary = new stdClass();
+    $vocabulary->name = $this->randomName();
+    $vocabulary->machine_name = drupal_strtolower($vocabulary->name);
+    taxonomy_vocabulary_save($vocabulary);
+    $this->createField('taxonomy_term_reference', array(
+      'settings' => array(
+        'allowed values' => array(
+          array(
+            'vocabulary' => $vocabulary->machine_name,
+          ),
+        ),
+      ),
+    ));
+    $this->assertEqual(count(FieldHelper::getReferencingFields()), 3);
+    $this->assertEqual(FieldHelper::getReferencingFields('field_taxonomy_term_reference'), array(
+      'tid' => 'taxonomy_term',
+    ));
+
+    $this->createField('entityreference', array(
+      'field_name' => 'field_entity_node',
+    ));
+    $this->createField('entityreference', array(
+      'field_name' => 'field_entity_taxonomy',
+      'settings' => array(
+        'target_type' => 'taxonomy_term',
+      ),
+    ));
+    $this->assertEqual(count(FieldHelper::getReferencingFields()), 5);
+    $this->assertEqual(FieldHelper::getReferencingFields('field_entity_node'), array(
+      'target_id' => 'node',
+    ));
+    $this->assertEqual(FieldHelper::getReferencingFields('field_entity_taxonomy'), array(
+      'target_id' => 'taxonomy_term',
+    ));
+
+    field_delete_field('field_entity_taxonomy');
+    field_delete_field('field_entity_node');
+    $this->assertEqual(count(FieldHelper::getReferencingFields()), 3);
+    $this->assertFalse(FieldHelper::getReferencingFields('field_entity_node'));
+    $this->assertFalse(FieldHelper::getReferencingFields('field_entity_taxonomy'));
+  }
+
+}
