@@ -8,44 +8,31 @@ class FieldHelper {
         $value_parents = is_array($column) ? $column : array($column);
         $items = ArrayHelper::extractNestedValuesToArray($items, $value_parents);
       }
-
       return $items;
-    }
-  }
-
-  public static function getValue($entity_type, $entity, $field_name, $column = NULL, $delta = 0) {
-    $items = static::getValues($entity_type, $entity, $field_name);
-    if (isset($column)) {
-      if (isset($items[$delta][$column])) {
-        return $items[$delta][$column];
-      }
-    }
-    else {
-      if (isset($items[$delta])) {
-        return $items[$delta];
-      }
-    }
-  }
-
-
-  public static function extractValues($entity_type, $entity, $field, $column) {
-    if (!empty($entity) && $items = field_get_items($entity_type, $entity, $field)) {
-      $value_parents = is_array($column) ? $column : array($column);
-      return ArrayHelper::extractNestedValuesToArray($items, $value_parents);
     }
     return array();
   }
 
-  public static function getValueDelta($entity_type, $entity, $field, $column, $value) {
-    if (!empty($entity) && $items = field_get_items($entity_type, $entity, $field)) {
-      foreach ($items as $delta => $item) {
-        if (isset($item[$column]) && $item[$column] == $value) {
-          return $delta;
-        }
-      }
+  public static function getValue($entity_type, $entity, $field_name, $column = NULL, $delta = 0) {
+    $items = static::getValues($entity_type, $entity, $field_name, $column);
+    if (isset($items[$delta])) {
+      return $items[$delta];
     }
+  }
 
-    return FALSE;
+  /**
+   * @deprecated Use FieldHelper::getValues().
+   */
+  public static function extractValues($entity_type, $entity, $field, $column) {
+    return static::getValues($entity_type, $entity, $field, $column);
+  }
+
+  /**
+   * @deprecated Use FieldHelper::getValues() and array_search().
+   */
+  public static function getValueDelta($entity_type, $entity, $field, $column, $value) {
+    $items = static::getValues($entity_type, $entity, $field, $column);
+    return array_search($value, $items);
   }
 
   public static function hasDelta($entity_type, $entity, $field, $delta) {
@@ -93,16 +80,30 @@ class FieldHelper {
    *   The type of field to look for.
    *
    * @return array
-   *   An array of fields, keyed by field name.
+   *   An array of field names.
    */
   public static function getFieldsByType($type) {
-    $fields = function_exists('field_info_field_map') ? field_info_field_map() : field_info_fields();
-    return array_filter($fields, function ($field) use ($type) {
-      return $field['type'] == $type;
-    });
+    $fields_by_type = array();
+
+    if ($cache = cache_get('field_info:helper_fields_by_type', 'cache_field')) {
+      $fields_by_type = $cache->data;
+    }
+    else {
+      foreach (field_info_fields() as $field) {
+        $fields_by_type[$field['type']][] = $field['field_name'];
+      }
+      cache_set('field_info:helper_fields_by_type', $fields_by_type, 'cache_field');
+    }
+
+    return !empty($fields_by_type[$type]) ? $fields_by_type[$type] : array();
   }
 
-  public static function getReferencingFields($field_name = NULL) {
+  /**
+   * Find all field columns that have data that refer to entities.
+   *
+   * @return array
+   */
+  public static function getEntityReferencingFields() {
     $results = array();
 
     if ($cache = cache_get('field_info:helper_referencing_fields', 'cache_field')) {
@@ -140,12 +141,12 @@ class FieldHelper {
       cache_set('field_info:helper_referencing_fields', $results, 'cache_field');
     }
 
-    if (isset($field_name)) {
-      return !empty($results[$field_name]) ? $results[$field_name] : FALSE;
-    }
-    else {
-      return $results;
-    }
+    return $results;
+  }
+
+  public static function getEntityReferencingFieldColumns($field_name) {
+    $results = static::getEntityReferencingFields();
+    return !empty($results[$field_name]) ? $results[$field_name] : FALSE;
   }
 
   public static function readFieldByID($id, $include_deleted = TRUE, $include_inactive = TRUE) {
