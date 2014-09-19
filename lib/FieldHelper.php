@@ -105,7 +105,7 @@ class FieldHelper {
   public static function getReferencingFields($field_name = NULL) {
     $results = array();
 
-    if ($cache = cache_get('helper:referencing-field-info', 'cache_field')) {
+    if ($cache = cache_get('field_info:helper_referencing_fields', 'cache_field')) {
       $results = $cache->data;
     }
     else {
@@ -137,7 +137,7 @@ class FieldHelper {
       }
 
       drupal_alter('helper_field_get_referencing_fields', $results, $fields);
-      cache_set('helper:referencing-field-info', $results, 'cache_field');
+      cache_set('field_info:helper_referencing_fields', $results, 'cache_field');
     }
 
     if (isset($field_name)) {
