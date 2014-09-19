@@ -118,28 +118,25 @@ class FieldHelper {
       }
 
       $fields = field_info_fields();
-      foreach ($fields as $field_name => $field) {
+      foreach ($fields as $field) {
         // Cannot rely on entityreference fields having correct foreign key info.
         // @todo Remove when http://drupal.org/node/1969018 is fixed.
-        if ($field['type'] != 'entityreference') {
-          foreach ($field['foreign keys'] as $foreign_key) {
-            if (isset($base_tables[$foreign_key['table']])) {
-              $base_table = $base_tables[$foreign_key['table']];
-              if ($column = array_search($base_table['column'], $foreign_key['columns'])) {
-                $results[$field_name] = $base_table;
-              }
-            }
-          }
+        if ($field['type'] == 'entityreference') {
+          $results[$field['field_name']]['target_id'] = $field['settings']['target_type'];
+          continue;
         }
-        else {
-          // Special handling for entity reference fields.
-          $type = $field['settings']['target_type'];
-          if (!empty($entity_info[$type]['base table']) && !empty($entity_info[$type]['entity keys']['id'])) {
-            $results[$field_name] = array('type' => $type, 'column' => 'target_id');
+
+        foreach ($field['foreign keys'] as $foreign_key) {
+          if (isset($base_tables[$foreign_key['table']])) {
+            $base_table = $base_tables[$foreign_key['table']];
+            if ($column = array_search($base_table['column'], $foreign_key['columns'])) {
+              $results[$field['field_name']][$column] = $base_table['type'];
+            }
           }
         }
       }
 
+      drupal_alter('helper_field_get_referencing_fields', $results, $fields);
       cache_set('helper:referencing-field-info', $results, 'cache_field');
     }
 
