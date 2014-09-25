@@ -307,7 +307,7 @@ class EntityHelper {
       return reset($output);
     }
     else {
-      return FALSE;
+      return array();
     }
   }
 
