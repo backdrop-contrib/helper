@@ -286,7 +286,7 @@ class EntityHelper {
     }
 
     if (!empty($info['view modes'])) {
-      $view_modes += ArrayHelper::extractNestedValuesToArray($info['view_modes'], array('label'));
+      $view_modes += ArrayHelper::extractNestedValuesToArray($info['view modes'], array('label'));
     }
 
     // Filter out disabled view modes if requested, and a bundle was provided.
