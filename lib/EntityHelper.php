@@ -183,32 +183,25 @@ class EntityHelper {
    *
    * @param string $entity_type
    *   The entity type of $entity.
-   * @param object $entity
-   *   The entity object.
-   * @param boolean $exclude_current_revision_id
-   *   (optional) If TRUE will exclude the current revision of $entity from the
-   *   results.
+   * @param int $entity_id
+   *   The entity ID.
    *
    * @return array
-   *   An array of revision IDs associated with $entity.
+   *   An array of revision IDs associated with entity.
    */
-  public static function getAllRevisionIDs($entity_type, $entity, $exclude_current_revision_id = FALSE) {
+  public static function getAllRevisionIDs($entity_type, $entity_id) {
     $info = entity_get_info($entity_type);
 
     if (empty($info['entity keys']['id']) || empty($info['entity keys']['revision']) || empty($info['revision table'])) {
       return array();
     }
 
-    list($entity_id, $revision_id) = entity_extract_ids($entity_type, $entity);
     $id_key = $info['entity keys']['id'];
     $revision_key = $info['entity keys']['revision'];
 
     $query = db_select($info['revision table'], 'revision');
     $query->addField('revision', $revision_key);
     $query->condition('revision.' . $id_key, $entity_id);
-    if ($exclude_current_revision_id) {
-      $query->condition('revision.' . $revision_key, $revision_id, '<>');
-    }
     return $query->execute()->fetchCol();
   }
 
