@@ -314,6 +314,13 @@ class EntityHelper {
     }
 
     $output = entity_view($entity_type, $entities, $view_mode, $langcode, $page);
+
+    // Workaround for file_entity module that does not have the patch in
+    // https://www.drupal.org/node/2365821 applied yet.
+    if ($entity_type === 'file' && isset($output['files'])) {
+      $output = array('file' => reset($output));
+    }
+
     return !empty($output[$entity_type]) ? $output[$entity_type] : array();
   }
 }
