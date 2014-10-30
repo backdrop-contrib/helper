@@ -49,6 +49,71 @@ class EntityHelper {
     return reset($entities);
   }
 
+  /**
+   * Fetch entity IDs that have a certain label.
+   *
+   * @param string $entity_type
+   *   The entity type of $entity.
+   * @param string $label
+   *   The label of the entity to load.
+   * @param string $bundle
+   *   An optional bundle to restrict the results to.
+   * @param object $query
+   *   An optional EntityFieldQuery object to use to perform the query.
+   *
+   * @return array
+   *   An array of matching entity IDs.
+   *
+   * @throws Exception
+   */
+  public static function queryIdsByLabel($entity_type, $label, $bundle = NULL, $query = NULL) {
+    $info = entity_get_info($entity_type);
+    if (empty($info['entity keys']['label'])) {
+      throw new Exception("Unable to load entities of type $entity_type by label.");
+    }
+
+    if (!isset($query)) {
+      $query = new EntityFieldQuery();
+      $query->addTag('DANGEROUS_ACCESS_CHECK_OPT_OUT');
+    }
+
+    $query->entityCondition('entity_type', $entity_type);
+    if (isset($bundle)) {
+      $query->entityCondition('bundle', $bundle);
+    }
+    $query->propertyCondition($info['entity keys']['label'], $label);
+
+    $results = $query->execute();
+    if (!empty($results[$entity_type])) {
+      return array_keys($results[$entity_type]);
+    }
+    else {
+      return array();
+    }
+  }
+
+  /**
+   * Fetch an entity ID that have a certain label.
+   *
+   * @param string $entity_type
+   *   The entity type of $entity.
+   * @param string $label
+   *   The label of the entity to load.
+   * @param string $bundle
+   *   An optional bundle to restrict the results to.
+   * @param object $query
+   *   An optional EntityFieldQuery object to use to perform the query.
+   *
+   * @return int|bool
+   *   An entity ID if a match was found, or FALSE otherwise.
+   *
+   * @throws Exception
+   */
+  public static function queryIdByLabel($entity_type, $label, $bundle = NULL, $query = NULL) {
+    $ids = static::queryIdsByLabel($entity_type, $label, $bundle, $query);
+    return reset($ids);
+  }
+
   public static function entityTypeHasProperty($entity_type, array $parents) {
     if ($info = entity_get_info($entity_type)) {
       return drupal_array_get_nested_value($info, $parents);
