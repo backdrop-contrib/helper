@@ -11,6 +11,13 @@ class HttpHelper {
     }
     else {
       $response = drupal_http_request($url, $options);
+      $response->request_url = $url;
+      $response->request_options = $options;
+
+      if (!empty($response->error)) {
+        trigger_error("Error on request to {$url}: {$response->code} {$response->error}.", E_USER_WARNING);
+      }
+
       if (!$cache_errors && !empty($response->error)) {
         $cid = FALSE;
       }
