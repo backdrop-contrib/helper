@@ -57,4 +57,16 @@ class HttpHelper {
       return CACHE_TEMPORARY;
     }
   }
+
+  public static function getJson($url, array $options = array()) {
+    $data = NULL;
+    $response = static::cachedRequest($url, $options);
+    if (empty($response->error)) {
+      $data = drupal_json_decode($response->data);
+      if ($data === FALSE) {
+        trigger_error("Unable to decode JSON response from {$url}.", E_USER_WARNING);
+      }
+    }
+    return $data;
+  }
 }
