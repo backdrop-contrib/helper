@@ -149,6 +149,22 @@ class FieldHelper {
     return !empty($results[$field_name]) ? $results[$field_name] : FALSE;
   }
 
+  public static function getFieldEntities($entity_type, $entity, $field_name, $column = NULL) {
+    $columns = static::getEntityReferencingFieldColumns($field_name);
+    if (!isset($column)) {
+      reset($columns);
+      $column = key($columns);
+    }
+    if (isset($columns[$column])) {
+      if ($ids = static::getValues($entity_type, $entity, $field_name, $column)) {
+        if ($entities = entity_load($columns[$column], $ids)) {
+          return $entities;
+        }
+      }
+    }
+    return array();
+  }
+
   public static function readFieldByID($id, $include_deleted = TRUE, $include_inactive = TRUE) {
     $fields = field_read_fields(array('id' => $id), array('include_deleted' => $include_deleted, 'include_inactive' => $include_inactive));
     return !empty($fields) ? reset($fields) : FALSE;
