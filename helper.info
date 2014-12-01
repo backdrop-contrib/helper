@@ -4,6 +4,7 @@ core = 7.x
 php = 5.3
 files[] = lib/ArrayHelper.php
 files[] = lib/CacheHelper.php
+files[] = lib/DeliveryHelper.php
 files[] = lib/EntityHelper.php
 files[] = lib/FeaturesHelper.php
 files[] = lib/FieldHelper.php
