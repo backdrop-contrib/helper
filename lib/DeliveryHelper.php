@@ -4,7 +4,8 @@ class DeliveryHelper {
 
   public static function deliverMinimalHtmlPage($result) {
     if (is_int($result)) {
-      return drupal_deliver_html_page($result);
+      drupal_deliver_html_page($result);
+      return;
     }
 
     // Emit the correct charset HTTP header, but not if the page callback
@@ -29,7 +30,8 @@ class DeliveryHelper {
 
   public static function deliverRawHtmlPage($result) {
     if (is_int($result)) {
-      return drupal_deliver_html_page($result);
+      drupal_deliver_html_page($result);
+      return;
     }
 
     // Emit the correct charset HTTP header, but not if the page callback
@@ -49,6 +51,35 @@ class DeliveryHelper {
     }
 
     drupal_page_footer();
+  }
+
+  public static function deliverRedirect($result) {
+    if (is_int($result)) {
+      drupal_deliver_html_page($result);
+      return;
+    }
+
+    if (module_exists('redirect')) {
+      // Using the redirect module instead of drupal_goto() may allow this
+      // redirect to be stored in the page cache.
+      $redirect = new stdClass();
+      $redirect->redirect = $result;
+      redirect_redirect($redirect);
+    }
+    else {
+      drupal_goto($result, array(), 301);
+    }
+  }
+
+  public static function deliverFileRedirect($result) {
+    if (is_int($result)) {
+      drupal_deliver_html_page($result);
+      return;
+    }
+
+    $uri = !empty($result->uri) ? $result->uri : $result;
+    $url = file_create_url($uri);
+    static::deliverRedirect($url);
   }
 
 }
