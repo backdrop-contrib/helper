@@ -243,6 +243,64 @@ class EntityHelper {
     entity_get_controller($entity_type)->resetCache(array($id));
   }
 
+  public static function updateBaseTableValues($entity_type, $entity, array $fields = array()) {
+    $entity_info = entity_get_info($entity_type);
+    if (empty($entity_info['base table'])) {
+      throw new Exception("Unable to update base tables for entity type $entity_type.");
+    }
+
+    list($id, $revision_id) = entity_extract_ids($entity_type, $entity);
+    if (empty($id)) {
+      throw new Exception("Unable to update base tables for an unsaved entity.");
+    }
+
+    $base_values = array();
+    foreach ($entity_info['schema_fields_sql']['base table'] as $field_name) {
+      // Check if we care about saving this field or not.
+      if (!empty($fields) && !in_array($field_name, $fields)) {
+        continue;
+      }
+
+      if (property_exists($entity, $field_name)) {
+        $base_values[$field_name] = $entity->{$field_name};
+      }
+    }
+
+    if (!empty($base_values)) {
+      dpm($base_values, __LINE__);
+      db_update($entity_info['base table'])
+        ->fields($base_values)
+        ->condition($entity_info['entity keys']['id'], $id)
+        ->execute();
+    }
+
+    if (!empty($revision_id) && !empty($entity_info['revision table']) && !empty($entity_info['entity keys']['revision'])) {
+      $revision_values = array();
+      foreach ($entity_info['schema_fields_sql']['revision table'] as $field_name) {
+        // Check if we care about saving this field or not.
+        if (!empty($fields) && !in_array($field_name, $fields)) {
+          continue;
+        }
+
+        if (property_exists($entity, $field_name)) {
+          $revision_values[$field_name] = $entity->{$field_name};
+        }
+      }
+
+      if (!empty($revision_values)) {
+        dpm($revision_values, __LINE__);
+        db_update($entity_info['revision table'])
+          ->fields($revision_values)
+          ->condition($entity_info['entity keys']['id'], $id)
+          ->condition($entity_info['entity keys']['revision'], $revision_id)
+          ->execute();
+      }
+    }
+
+    // Clear the cache for this entity now.
+    entity_get_controller($entity_type)->resetCache(array($id));
+  }
+
   /**
    * Return an array of all the revision IDs of a given entity.
    *
