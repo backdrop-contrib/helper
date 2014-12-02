@@ -243,7 +243,7 @@ class EntityHelper {
     entity_get_controller($entity_type)->resetCache(array($id));
   }
 
-  public static function updateBaseTableValues($entity_type, $entity, array $fields = array()) {
+  public static function updateBaseTableValues($entity_type, $entity, array $fields = array(), $save_revision = TRUE) {
     $entity_info = entity_get_info($entity_type);
     if (empty($entity_info['base table'])) {
       throw new Exception("Unable to update base tables for entity type $entity_type.");
@@ -274,7 +274,7 @@ class EntityHelper {
         ->execute();
     }
 
-    if (!empty($revision_id) && !empty($entity_info['revision table']) && !empty($entity_info['entity keys']['revision'])) {
+    if ($save_revision && !empty($revision_id) && !empty($entity_info['revision table']) && !empty($entity_info['entity keys']['revision'])) {
       $revision_values = array();
       foreach ($entity_info['schema_fields_sql']['revision table'] as $field_name) {
         // Check if we care about saving this field or not.
