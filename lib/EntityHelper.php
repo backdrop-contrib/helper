@@ -267,7 +267,6 @@ class EntityHelper {
     }
 
     if (!empty($base_values)) {
-      dpm($base_values, __LINE__);
       db_update($entity_info['base table'])
         ->fields($base_values)
         ->condition($entity_info['entity keys']['id'], $id)
@@ -288,7 +287,6 @@ class EntityHelper {
       }
 
       if (!empty($revision_values)) {
-        dpm($revision_values, __LINE__);
         db_update($entity_info['revision table'])
           ->fields($revision_values)
           ->condition($entity_info['entity keys']['id'], $id)
