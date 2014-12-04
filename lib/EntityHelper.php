@@ -445,13 +445,13 @@ class EntityHelper {
     return !empty($output[$entity_type]) ? $output[$entity_type] : array();
   }
 
-  public static function filterByAccess($entity_type, array $entities, $op = 'view') {
+  public static function filterByAccess($entity_type, array $entities, $op = 'view', $account = NULL) {
     if (!function_exists('entity_access')) {
       throw new Exception("Cannot use EntityHelper::viewMultiple() without the Entity API module enabled.");
     }
 
-    return array_filter($entities, function($entity) use ($entity_type, $op) {
-      return entity_access($op, $entity_type, $entity);
+    return array_filter($entities, function($entity) use ($entity_type, $op, $account) {
+      return entity_access($op, $entity_type, $entity, $account);
     });
   }
 }
