@@ -16,7 +16,7 @@ function _helper_hook_info_groups() {
   );
   $groups['date'] = array(
     'date_formats', 'date_formats_alter', 'date_format_types',
-    'date_format_types_alter',
+    'date_format_types_alter', 'format_date_alter',
   );
   $groups['entity'] = array(
     'entity_delete', 'entity_info', 'entity_info_alter', 'entity_insert',
