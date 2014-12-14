@@ -80,6 +80,40 @@ class ArrayHelperTest extends DrupalUnitTestCase {
     $this->assertIdentical($result, $expected2);
   }
 
+  public function testSpliceAssociativeValues() {
+    $input = array(
+      0 => 'value1',
+      'key1' => 'value2',
+      1 => 'value3',
+      'key2' => 'value4',
+    );
+
+    $result = ArrayHelper::spliceAssociativeValues($input, array('newkey' => 'newvalue'), 2);
+    $this->assertIdentical($result, array(
+      0 => 'value1',
+      'key1' => 'value2',
+      'newkey' => 'newvalue',
+      1 => 'value3',
+      'key2' => 'value4',
+    ));
+
+    $result = ArrayHelper::spliceAssociativeValues($input, array('newkey' => 'newvalue'), 1, 1);
+    $this->assertIdentical($result, array(
+      0 => 'value1',
+      'newkey' => 'newvalue',
+      1 => 'value3',
+      'key2' => 'value4',
+    ));
+
+    $result = ArrayHelper::spliceAssociativeValues($input, array('newkey' => 'newvalue'), 2, 1);
+    $this->assertIdentical($result, array(
+      0 => 'value1',
+      'key1' => 'value2',
+      'newkey' => 'newvalue',
+      'key2' => 'value4',
+    ));
+  }
+
 }
 
 class ArrayHelperTestObject {

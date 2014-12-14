@@ -89,4 +89,8 @@ class ArrayHelper {
   public static function filterKeys(array $array, $callback) {
     return array_intersect_key($array, array_flip(array_filter(array_keys($array), $callback)));
   }
+
+  public static function spliceAssociativeValues(array $array, array $values, $offset, $length = 0) {
+    return array_slice($array, 0, $offset, TRUE) + $values + array_slice($array, $offset + $length, NULL, TRUE);
+  }
 }
