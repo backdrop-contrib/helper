@@ -1,7 +1,7 @@
 <?php
 
-include __DIR__ . '/../lib/ArrayHelper.php';
-include __DIR__ . '/../lib/XmlHelper.php';
+require_once __DIR__ . '/../lib/ArrayHelper.php';
+require_once __DIR__ . '/../lib/XmlHelper.php';
 
 class XmlHelperTestCase extends DrupalUnitTestCase {
 
