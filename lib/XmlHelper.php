@@ -69,7 +69,7 @@ class XmlHelper {
           }
 
           // Replace it in the array.
-          $result = ArrayHelper::insertAssociativeValues($result, array($name => $element), $index);
+          $result = ArrayHelper::spliceAssociativeValues($result, array($name => $element), $index);
           unset($result[$index]);
         }
       }
