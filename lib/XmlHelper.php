@@ -7,75 +7,121 @@ class XmlHelper {
    *
    * The converse of format_xml_elements().
    *
-   * @param string|SimpleXmlIterator $xml
+   * @param string|SimpleXmlElement $data
    *   The XML data to parse.
-   * @param bool $simplify
-   *   If simple XML elements should be converted to just an array key and value
-   *   pair where possible.
-   * @param array $namespaces
-   *   Internal parameter used for recursion.
+   * @param array $options
    *
    * @return array|bool
    *   An array representing the XML data, or FALSE if there was a failure.
    */
-  public static function parseElements($xml, $simplify = TRUE, array $namespaces = NULL) {
-    if (is_string($xml)) {
-      $xml = new SimpleXmlIterator($xml);
-      if (!$xml) {
-        return FALSE;
-      }
-      $namespaces = $xml->getNamespaces(TRUE);
-      return static::parseElements($xml, $simplify, $namespaces);
+  public static function parseElements($data, array $options = array()) {
+    $xml = static::normalizeDataToSimpleXml($data);
+
+    $options += array(
+      'simplify' => TRUE,
+      'namespaces' => $xml->getNamespaces(TRUE),
+    );
+
+    $results = array(static::parseElement($xml, $options));
+    if (!empty($options['simplify'])) {
+      static::simplifyElements($results);
     }
+
+    return $results;
+  }
+
+  public static function parseElement(SimpleXMLElement $element, array $options = array()) {
+    $options += array(
+      'simplify' => TRUE,
+      'namespaces' => $element->getNamespaces(TRUE),
+    );
 
     $result = array();
-    $name_indexes = array();
+    $result['key'] = $element->getName();
+    if (!empty($options['prefix'])) {
+      $result['key'] = $options['prefix'] . ':' . $result['key'];
+    }
 
-    for ($xml->rewind(), $index = 0; $xml->valid(); $xml->next(), $index++) {
-      $element = array();
-      $element['name'] = $xml->key();
+    foreach ($element->attributes() as $attribute_key => $attribute_value) {
+      $result['attributes'][$attribute_key] = (string) $attribute_value;
+    }
 
-      foreach ($xml->current()->attributes() as $attribute_key => $attribute_value) {
-        $element['attributes'][$attribute_key] = (string) $attribute_value;
-      }
-      if ($namespaces) {
-        foreach (array_keys($namespaces) as $namespace) {
-          foreach ($xml->current()->attributes($namespace, TRUE) as $attribute_key => $attribute_value) {
-            $element['attributes'][$namespace . ':' . $attribute_key]= (string) $attribute_value;
-          }
+    if (!empty($options['namespaces'])) {
+      foreach (array_keys($options['namespaces']) as $namespace) {
+        foreach ($element->attributes($namespace, TRUE) as $attribute_key => $attribute_value) {
+          $result['attributes'][$namespace . ':' . $attribute_key] = (string) $attribute_value;
         }
-      }
-
-      $element['value'] = $xml->hasChildren() ? static::parseElements($xml->current(), $simplify, $namespaces) : trim((string) $xml->current());
-      $result[] = $element;
-
-      if ($simplify) {
-        $name_indexes[$element['name']][] = $index;
       }
     }
 
-    if ($simplify) {
-      foreach ($name_indexes as $name => $indexes) {
-        if (count($indexes) === 1) {
-          $index = $indexes[0];
-
-          // Simplify the element.
-          $element = $result[$index];
-          if (!isset($element['attributes']) && !is_array($element['value'])) {
-            $element = $element['value'];
-          }
-          else {
-            $element = array_diff_key($element, array('name' => NULL));
-          }
-
-          // Replace it in the array.
-          $result = ArrayHelper::spliceAssociativeValues($result, array($name => $element), $index);
-          unset($result[$index]);
+    $children = array();
+    foreach ($element->children() as $child) {
+      $children[] = static::parseElement($child, $options);
+    }
+    if (!empty($options['namespaces'])) {
+      foreach (array_keys($options['namespaces']) as $namespace) {
+        foreach ($element->children($namespace, TRUE) as $child) {
+          $children[] = static::parseElement($child, array('prefix' => $namespace) + $options);
         }
+      }
+    }
+
+    if (!empty($children)) {
+      if (!empty($options['simplify'])) {
+        static::simplifyElements($children);
+      }
+      $result['value'] = $children;
+    }
+    else {
+      $result['value'] = (string) $element;
+      if (!empty($options['simplify'])) {
+        $result['value'] = trim($result['value']);
       }
     }
 
     return $result;
+  }
+
+  public static function simplifyElements(array &$elements) {
+    $key_indexes = array();
+    foreach ($elements as $index => $element) {
+      $key_indexes[$element['key']][] = $index;
+    }
+
+    foreach ($elements as $index => $element) {
+      if (!is_numeric($index) || !is_array($element) || !isset($element['key'])) {
+        continue;
+      }
+      if (count($key_indexes[$element['key']]) > 1) {
+        continue;
+      }
+
+      if (!empty($element['attributes'])) {
+        continue;
+      }
+
+      // Replace it in the array.
+      $elements = ArrayHelper::spliceAssociativeValues($elements, array($element['key'] => $element['value']), $index);
+      unset($elements[$index]);
+    }
+  }
+
+  public static function convertToSimpleArray($data) {
+    $xml = static::normalizeDataToSimpleXml($data);
+    $array = json_decode(json_encode((array) $xml), 1);
+    return array($xml->getName() => $array);
+  }
+
+  public static function normalizeDataToSimpleXml($data, $class_name = NULL, $options = LIBXML_NOCDATA) {
+    if (is_object($data) && is_a($data, 'SimpleXMLElement')) {
+      return $data;
+    }
+    elseif (is_file($data) || valid_url($data, TRUE)) {
+      return simplexml_load_file($data, $class_name, $options);
+    }
+    else {
+      return simplexml_load_string((string) render($data), $class_name, $options);
+    }
   }
 
 }
