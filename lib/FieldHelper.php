@@ -149,6 +149,18 @@ class FieldHelper {
     return !empty($results[$field_name]) ? $results[$field_name] : FALSE;
   }
 
+  public static function getEntityReferencingFieldsByType($entity_type) {
+    $results = static::getEntityReferencingFields();
+    return array_filter($results, function ($columns) use ($entity_type) {
+      foreach ($columns as $column => $column_entity_type) {
+        if ($column_entity_type == $entity_type) {
+          return TRUE;
+        }
+      }
+      return FALSE;
+    });
+  }
+
   public static function getFieldEntities($entity_type, $entity, $field_name, $column = NULL) {
     $columns = static::getEntityReferencingFieldColumns($field_name);
     if (!isset($column)) {

@@ -454,4 +454,49 @@ class EntityHelper {
       return entity_access($op, $entity_type, $entity, $account);
     });
   }
+
+  public static function getAllReferencesTo($entity_type, array $entity_ids, EntityFieldQuery $query = NULL) {
+    if (!isset($query)) {
+      $query = new EntityFieldQuery();
+      $query->addTag('DANGEROUS_ACCESS_CHECK_OPT_OUT');
+    }
+
+    $references = array();
+    $fields = FieldHelper::getEntityReferencingFieldsByType($entity_type);
+    foreach ($fields as $field_name => $columns) {
+      foreach (array_keys($columns) as $column) {
+        $field_query = clone $query;
+        $field_query->fieldCondition($field_name, $column, $entity_ids);
+        if ($results = $field_query->execute()) {
+          $references = drupal_array_merge_deep($references, $results);
+        }
+      }
+    }
+
+    return $references;
+  }
+
+  public static function isPubliclyVisible($entity_type, $entity, array $options = array()) {
+    if (!function_exists('entity_access')) {
+      throw new Exception("Cannot use EntityHelper::viewMultiple() without the Entity API module enabled.");
+    }
+
+    $options += array(
+      'needs_alias' => FALSE,
+    );
+
+    $uri = entity_uri($entity_type, $entity);
+    if (empty($uri['path'])) {
+      return FALSE;
+    }
+    elseif ($options['need_alias'] && !drupal_lookup_path('alias', $uri['path'], NULL)) {
+      return FALSE;
+    }
+    elseif (module_exists('rabbit_hole') && rabbit_hole_get_action($entity_type, $entity) !== RABBIT_HOLE_DISPLAY_CONTENT) {
+      return FALSE;
+    }
+    else {
+      return entity_access('view', $entity_type, $entity, drupal_anonymous_user()) ? $uri['path'] : FALSE;
+    }
+  }
 }
