@@ -482,14 +482,14 @@ class EntityHelper {
     }
 
     $options += array(
-      'needs_alias' => FALSE,
+      'needs alias' => FALSE,
     );
 
     $uri = entity_uri($entity_type, $entity);
     if (empty($uri['path'])) {
       return FALSE;
     }
-    elseif ($options['need_alias'] && !drupal_lookup_path('alias', $uri['path'], NULL)) {
+    elseif ($options['need alias'] && !drupal_lookup_path('alias', $uri['path'], NULL)) {
       return FALSE;
     }
     elseif (module_exists('rabbit_hole') && rabbit_hole_get_action($entity_type, $entity) !== RABBIT_HOLE_DISPLAY_CONTENT) {
