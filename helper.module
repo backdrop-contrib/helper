@@ -35,6 +35,7 @@ function helper_helper_tweak_info() {
   );
   $info['node_delete_tab'] = array(
     'label' => t('Expose Delete on nodes as a tab.'),
+    'enabled' => FALSE,
   );
   $info['login_destination'] = array(
     'label' => t('Add destination query strings to login/register links for anonymous users.'),
