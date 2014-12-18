@@ -72,7 +72,7 @@ function helper_get_tweaks() {
     $status = variable_get('helper_tweaks', array());
     foreach ($tweaks as $tweak => $info) {
       if (isset($status[$tweak])) {
-        $tweaks[$tweak]['enabled'] = FALSE;
+        $tweaks[$tweak]['enabled'] = (bool) $status[$tweak];
       }
       else {
         $tweaks[$tweak] += array('enabled' => TRUE);
