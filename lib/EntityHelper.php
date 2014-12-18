@@ -430,10 +430,6 @@ class EntityHelper {
       return array();
     }
 
-    if (!function_exists('entity_view')) {
-      throw new Exception("Cannot use EntityHelper::viewMultiple() without the Entity API module enabled.");
-    }
-
     $output = entity_view($entity_type, $entities, $view_mode, $langcode, $page);
 
     // Workaround for file_entity module that does not have the patch in
@@ -446,10 +442,6 @@ class EntityHelper {
   }
 
   public static function filterByAccess($entity_type, array $entities, $op = 'view', $account = NULL) {
-    if (!function_exists('entity_access')) {
-      throw new Exception("Cannot use EntityHelper::viewMultiple() without the Entity API module enabled.");
-    }
-
     return array_filter($entities, function($entity) use ($entity_type, $op, $account) {
       return entity_access($op, $entity_type, $entity, $account);
     });
@@ -477,10 +469,6 @@ class EntityHelper {
   }
 
   public static function isPubliclyVisible($entity_type, $entity, array $options = array()) {
-    if (!function_exists('entity_access')) {
-      throw new Exception("Cannot use EntityHelper::viewMultiple() without the Entity API module enabled.");
-    }
-
     $options += array(
       'needs alias' => FALSE,
     );
@@ -496,7 +484,7 @@ class EntityHelper {
       return FALSE;
     }
     else {
-      return entity_access('view', $entity_type, $entity, drupal_anonymous_user()) ? $uri['path'] : FALSE;
+      return entity_access('view', $entity_type, $entity, drupal_anonymous_user());
     }
   }
 }
