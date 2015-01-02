@@ -158,9 +158,11 @@ function helper_preprocess_menu_local_action(&$variables) {
  * Implements hook_ajax_render_alter().
  */
 function helper_ajax_render_alter() {
-  // Disable XHProf module on any AJAX requests.
-  // @todo Remove when http://drupal.org/node/1485190 is fixed.
-  $GLOBALS['conf']['xhprof_enabled'] = FALSE;
+  // Ensure a proper AJAX header is always provided.
+  // @see https://www.drupal.org/node/1710710
+  if (is_null(drupal_get_http_header('Content-Type'))) {
+    drupal_add_http_header('Content-Type', 'application/json; charset=utf-8');
+  }
 }
 
 /**
