@@ -93,4 +93,12 @@ class ArrayHelper {
   public static function spliceAssociativeValues(array $array, array $values, $offset, $length = 0) {
     return array_slice($array, 0, $offset, TRUE) + $values + array_slice($array, $offset + $length, NULL, TRUE);
   }
+
+  public static function replaceAssociativeValues(array $array1, array $array2, $value_if_not_found = NULL) {
+    $return = array();
+    foreach (array_keys($array1) as $key) {
+      $return[$key] = array_key_exists($key, $array2) ? $array2[$key] : $value_if_not_found;
+    }
+    return $return;
+  }
 }
