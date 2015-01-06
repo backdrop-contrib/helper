@@ -94,10 +94,10 @@ class ArrayHelper {
     return array_slice($array, 0, $offset, TRUE) + $values + array_slice($array, $offset + $length, NULL, TRUE);
   }
 
-  public static function transformAssociativeValues(array $array1, array $array2) {
+  public static function transformAssociativeValues(array $array1, array $array2, $value_if_not_exists = NULL) {
     $return = array();
     foreach ($array1 as $key => $value) {
-      $return[$key] = array_key_exists($value, $array2) ? $array2[$value] : NULL;
+      $return[$key] = array_key_exists($value, $array2) ? $array2[$value] : $value_if_not_exists;
     }
     return $return;
   }
