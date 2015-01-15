@@ -35,7 +35,11 @@ class HttpHelper {
     if (isset($options['cache']) && $options['cache'] === FALSE) {
       return FALSE;
     }
-    if (isset($options['cache']['cid'])) {
+    elseif (isset($options['method']) && !in_array($options['method'], array('GET', 'HEAD'))) {
+      // Only cache GET and HEAD methods.
+      return FALSE;
+    }
+    elseif (isset($options['cache']['cid'])) {
       return $options['cache']['cid'];
     }
     $cid_parts = array($url, serialize(array_diff_key($options, array('cache' => ''))));
