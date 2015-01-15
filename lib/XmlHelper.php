@@ -117,10 +117,22 @@ class XmlHelper {
       return $data;
     }
     elseif (is_file($data) || valid_url($data, TRUE)) {
-      return simplexml_load_file($data, $class_name, $options);
+      $xml = simplexml_load_file($data, $class_name, $options);
+      if ($xml === FALSE) {
+        throw new Exception("Unable to parse XML from $data");
+      }
+      else {
+        return $xml;
+      }
     }
     else {
-      return simplexml_load_string((string) render($data), $class_name, $options);
+      $xml = simplexml_load_string((string) render($data), $class_name, $options);
+      if ($xml === FALSE) {
+        throw new Exception("Unable to parse XML");
+      }
+      else {
+        return $xml;
+      }
     }
   }
 
