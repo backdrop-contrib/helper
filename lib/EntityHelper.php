@@ -202,11 +202,21 @@ class EntityHelper {
    * @param array $fields
    *   (optional) An optional array of field names that if provided will only
    *   cause those specific fields to be saved, if values are provided.
+   *
+   * @throws \InvalidArgumentException
    */
   public static function updateFieldValuesStorage($entity_type, $entity, array $fields = array()) {
     list($id, , $bundle) = entity_extract_ids($entity_type, $entity);
     if (empty($id)) {
       throw new InvalidArgumentException(t('Cannot call EntityHelper::updateFieldValues() on an unsaved entity.'));
+    }
+
+    // Let any module update field data before the storage engine, accumulating
+    // saved fields along the way.
+    $skip_fields = array();
+    foreach (module_implements('field_storage_pre_update') as $module) {
+      $function = $module . '_field_storage_pre_update';
+      $function($entity_type, $entity, $skip_fields);
     }
 
     // Collect the storage backends used by the remaining fields in the entities.

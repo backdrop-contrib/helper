@@ -50,6 +50,10 @@ class HttpHelper {
       // Respect the Cache-Control: no-cache header.
       return FALSE;
     }
+    elseif (!empty($response->headers['cache-control']) && preg_match('/max-age=(\d+)/', $response->headers['cache-control'], $matches)) {
+      // Respect the Cache-Control: max-age=SECONDS header.
+      return REQUEST_TIME + $matches[1];
+    }
     elseif (!empty($response->headers['expires']) && $expire = strtotime($response->headers['expires'])) {
       return $expire;
     }
