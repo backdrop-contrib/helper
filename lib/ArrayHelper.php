@@ -101,4 +101,47 @@ class ArrayHelper {
     }
     return $return;
   }
+
+  /**
+   * Split an array into chunks more evenly then array_chunk().
+   *
+   * @param array $array
+   *   An array of data to split up.
+   * @param int $num
+   *   The amount of chunks to create.
+   * @param bool $preserve_keys
+   *   When set to TRUE keys will be preserved. Default is FALSE which will
+   *   reindex the chunk numerically
+   *
+   * @return array
+   *   Returns a multidimensional numerically indexed array, starting with
+   *   zero, with each dimension containing size elements.
+   *
+   * @see http://php.net/manual/en/function.array-chunk.php#75022
+   * @throws \InvalidArgumentException
+   */
+  public static function chunkEvenly(array $array, $num, $preserve_keys = FALSE) {
+    if (!is_numeric($num) || $num < 1) {
+      throw new InvalidArgumentException("Cannot use ArrayHelper::chunkEqually() with \$num being less than one, or not a number.");
+    }
+
+    $size = count($array);
+    if ($size === 0) {
+      return array();
+    }
+    if ($num > $size) {
+      $num = $size;
+    }
+
+    $chunk_size = floor($size / $num);
+    $remainder = $size % $num;
+    $chunks = array();
+    $mark = 0;
+    for ($i = 0; $i < $num; $i++) {
+      $incr = ($i < $remainder) ? $chunk_size + 1 : $chunk_size;
+      $chunks[$i] = array_slice($array, $mark, $incr, $preserve_keys);
+      $mark += $incr;
+    }
+    return $chunks;
+  }
 }
