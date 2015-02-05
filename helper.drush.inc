@@ -9,18 +9,16 @@
  * Implements hook_drush_cache_clear().
  */
 function helper_drush_cache_clear(&$types) {
-  if (drush_drupal_major_version() >= 7) {
-    $types['bootstrap'] = 'helper_drush_cache_clear_bootstrap';
-    // @todo Remove when http://drupal.org/node/1899468 is fixed.
-    if (drush_has_boostrapped(DRUSH_BOOTSTRAP_DRUPAL_FULL)) {
-      $types['entity'] = 'helper_drush_cache_clear_entity';
-      $types['field'] = 'field_cache_clear';
-      if (function_exists('module_exists') && module_exists('migrate')) {
-        $types['migrate'] = 'helper_drush_cache_clear_migrate';
-      }
-      if (function_exists('module_exists') && module_exists('views')) {
-        $types['views'] = 'views_invalidate_cache';
-      }
+  $types['bootstrap'] = 'helper_drush_cache_clear_bootstrap';
+  // @todo Remove when http://drupal.org/node/1899468 is fixed.
+  if (drush_has_boostrapped(DRUSH_BOOTSTRAP_DRUPAL_FULL)) {
+    $types['entity'] = 'helper_drush_cache_clear_entity';
+    $types['field'] = 'field_cache_clear';
+    if (function_exists('module_exists') && module_exists('migrate')) {
+      $types['migrate'] = 'helper_drush_cache_clear_migrate';
+    }
+    if (function_exists('module_exists') && module_exists('views')) {
+      $types['views'] = 'views_invalidate_cache';
     }
   }
 }
