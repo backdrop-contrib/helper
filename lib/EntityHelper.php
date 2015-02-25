@@ -497,4 +497,14 @@ class EntityHelper {
       return entity_access('view', $entity_type, $entity, drupal_anonymous_user());
     }
   }
+
+  public static function deleteMultiple($entity_type, array $ids) {
+    $function = $entity_type . '_delete_multiple';
+    if (function_exists($function)) {
+      return $function($ids);
+    }
+    else {
+      return entity_delete_multiple($entity_type, $ids);
+    }
+  }
 }
