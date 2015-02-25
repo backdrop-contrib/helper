@@ -3,7 +3,7 @@
 class FieldHelper {
 
   public static function getValues($entity_type, $entity, $field_name, $column = NULL) {
-    if (!empty($entity) && $items = field_get_items($entity_type, $entity, $field_name)) {
+    if (!empty($entity->{$field_name}) && $items = field_get_items($entity_type, $entity, $field_name)) {
       if (isset($column)) {
         $value_parents = is_array($column) ? $column : array($column);
         $items = ArrayHelper::extractNestedValuesToArray($items, $value_parents);
@@ -36,7 +36,7 @@ class FieldHelper {
   }
 
   public static function hasDelta($entity_type, $entity, $field, $delta) {
-    if (!empty($entity) && $items = field_get_items($entity_type, $entity, $field)) {
+    if (!empty($entity->{$field_name}) && $items = field_get_items($entity_type, $entity, $field)) {
       return !empty($items[$delta]);
     }
   }
