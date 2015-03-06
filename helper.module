@@ -144,6 +144,7 @@ function helper_preprocess_menu_local_action(&$variables) {
         case 'admin/structure/views/add':
         case 'admin/structure/flags/add':
         case 'admin/structure/multifield/add':
+        case 'admin/config/media/theplatform/accounts/add':
           return;
       }
 
