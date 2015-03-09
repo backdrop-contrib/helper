@@ -470,7 +470,7 @@ class EntityHelper {
         $field_query = clone $query;
         $field_query->fieldCondition($field_name, $column, $entity_ids);
         if ($results = $field_query->execute()) {
-          $references[$field_name] = $results;
+          $references[$field_name][$column] = $results;
         }
       }
     }
