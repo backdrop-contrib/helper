@@ -23,20 +23,20 @@ class FieldHelper {
   /**
    * @deprecated Use FieldHelper::getValues().
    */
-  public static function extractValues($entity_type, $entity, $field, $column) {
-    return static::getValues($entity_type, $entity, $field, $column);
+  public static function extractValues($entity_type, $entity, $field_name, $column) {
+    return static::getValues($entity_type, $entity, $field_name, $column);
   }
 
   /**
    * @deprecated Use FieldHelper::getValues() and array_search().
    */
-  public static function getValueDelta($entity_type, $entity, $field, $column, $value) {
-    $items = static::getValues($entity_type, $entity, $field, $column);
+  public static function getValueDelta($entity_type, $entity, $field_name, $column, $value) {
+    $items = static::getValues($entity_type, $entity, $field_name, $column);
     return array_search($value, $items);
   }
 
-  public static function hasDelta($entity_type, $entity, $field, $delta) {
-    if (!empty($entity->{$field_name}) && $items = field_get_items($entity_type, $entity, $field)) {
+  public static function hasDelta($entity_type, $entity, $field_name, $delta) {
+    if (!empty($entity->{$field_name}) && $items = field_get_items($entity_type, $entity, $field_name)) {
       return !empty($items[$delta]);
     }
   }
