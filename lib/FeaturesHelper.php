@@ -2,6 +2,11 @@
 
 class FeaturesHelper {
 
+  /**
+   * @deprecated
+   *
+   * Use features_revert_module($module) instead.
+   */
   public static function revert(array $modules, $force = FALSE) {
     module_load_include('inc', 'features', 'features.export');
     features_include(TRUE);
@@ -13,9 +18,9 @@ class FeaturesHelper {
       foreach ($components as $component => $state) {
         if ($force || in_array($state, $restore_states)) {
           if (!isset($items[$module_name])) {
-	    $items[$module_name] = array();
-	  }
-	  $items[$module_name][] = $component;
+            $items[$module_name] = array();
+          }
+          $items[$module_name][] = $component;
         }
       }
     }
@@ -25,7 +30,7 @@ class FeaturesHelper {
     }
   }
 
-  public static function revertAll($force = FALSE) {
+  public static function revertAll($force = FALSE, array $features_to_exclude = array()) {
     module_load_include('inc', 'features', 'features.export');
 
     $modules = array();

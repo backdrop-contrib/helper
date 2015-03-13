@@ -478,6 +478,9 @@ class EntityHelper {
     return $references;
   }
 
+  /**
+   * @deprecated Use the entity_is_public module instead.
+   */
   public static function isPubliclyVisible($entity_type, $entity, array $options = array()) {
     $options += array(
       'needs alias' => FALSE,
