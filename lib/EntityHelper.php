@@ -457,7 +457,7 @@ class EntityHelper {
     });
   }
 
-  public static function getAllReferencesTo($entity_type, array $entity_ids, EntityFieldQuery $query = NULL) {
+  public static function getAllReferencesTo($entity_type, array $entity_ids, EntityFieldQuery $query = NULL, $flatten = FALSE) {
     if (!isset($query)) {
       $query = new EntityFieldQuery();
       $query->addTag('DANGEROUS_ACCESS_CHECK_OPT_OUT');
@@ -470,7 +470,12 @@ class EntityHelper {
         $field_query = clone $query;
         $field_query->fieldCondition($field_name, $column, $entity_ids);
         if ($results = $field_query->execute()) {
-          $references[$field_name][$column] = $results;
+          if ($flatten) {
+            $references = drupal_array_merge_deep($references, $results);
+          }
+          else {
+            $references[$field_name . ':' . $column] = $results;
+          }
         }
       }
     }
