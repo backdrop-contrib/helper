@@ -169,9 +169,8 @@ class FieldHelper {
     }
     if (isset($columns[$column])) {
       if ($ids = static::getValues($entity_type, $entity, $field_name, $column)) {
-        if ($entities = entity_load($columns[$column], $ids)) {
-          return $entities;
-        }
+        $entities = entity_load($columns[$column], $ids);
+        return array_filter(ArrayHelper::transformAssociativeValues($ids, $entities));
       }
     }
     return array();
