@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Implememts hook_menu().
+ * Implements hook_menu().
  */
 function helper_menu() {
   $items['admin/config/system/helper'] = array(
