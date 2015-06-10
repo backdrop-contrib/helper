@@ -312,3 +312,20 @@ function helper_modules_uninstalled(array $modules) {
   // Remove deleted *and inactive* fields since field_purge_batch() will not.
   _helper_purge_inactive_deleted_fields();
 }
+
+/**
+ * An allowed_values_function callback to fetch list field values from modules.
+ */
+function helper_get_field_allowed_values($field, $instance, $entity_type, $entity, &$cacheable) {
+  $hook = $field['field_name'] . '_allowed_values';
+  $context = array(
+    'field' => $field,
+    'instance' => $instance,
+    'entity_type' => $entity_type,
+    'entity' => $entity,
+    'cacheable' => &$cacheable,
+  );
+  $options = module_invoke_all($hook, $context);
+  drupal_alter($hook, $options, $context);
+  return $options;
+}
