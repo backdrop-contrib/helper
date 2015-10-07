@@ -329,3 +329,25 @@ function helper_get_field_allowed_values($field, $instance, $entity_type, $entit
   drupal_alter($hook, $options, $context);
   return $options;
 }
+
+/**
+ * Implements hook_element_info_alter().
+ */
+function helper_element_info_alter(&$info) {
+  foreach ($info as $type => $type_info) {
+    if (isset($type_info['#process']) && in_array('form_process_autocomplete', $type_info['#process'])) {
+      $info[$type]['#process'][] = 'helper_process_autocomplete_submit';
+    }
+  }
+}
+
+/**
+ * Process function to add auto-submit functionality to autocomplete elements.
+ */
+function helper_process_autocomplete_submit($element) {
+  if (!empty($element['#autocomplete_submit'])) {
+    $element['#attributes']['class'][] = 'form-autocomplete-submit';
+    $element['#attached']['js'][] = drupal_get_path('module', 'helper') . '/js/autocomplete-submit.js';
+  }
+  return $element;
+}
