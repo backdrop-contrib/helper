@@ -1,0 +1,18 @@
+<?php
+
+class ProfileHelperTestCase extends DrupalWebTestCase {
+  protected $profile = 'testing';
+
+  public static function getInfo() {
+    return array(
+      'name' => 'FieldHelper',
+      'description' => 'Tests for the FieldHelper class.',
+      'group' => 'Helper',
+    );
+  }
+
+  public function setUp() {
+    parent::setUp(array('helper', 'file', 'image', 'taxonomy', 'entityreference'));
+  }
+
+}
