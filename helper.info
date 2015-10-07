@@ -20,6 +20,7 @@ files[] = views/views_handler_field_helper_entity_operation_links.inc
 files[] = tests/ArrayHelperTest.test
 files[] = tests/FeaturesHelperTestCase.test
 files[] = tests/FieldHelperTestCase.test
+files[] = tests/MenuHelperTestCase.test
 files[] = tests/UtilHelperTestCase.test
 files[] = tests/XmlHelperTestCase.test
 dependencies[] = entity
