@@ -403,8 +403,8 @@ class EntityHelper {
 
   public static function getKey($entity_type, $entity, $key) {
     $info = entity_get_info($entity_type);
-    if (static::entityTypeHasProperty($entity_type, array('entity keys', $key)) && isset($entity->$info['entity keys'][$key])) {
-      return $entity->$info['entity keys'][$key];
+    if (isset($info['entity keys'][$key]) && isset($entity->{$info['entity keys'][$key]})) {
+      return $entity->{$info['entity keys'][$key]};
     }
   }
 
