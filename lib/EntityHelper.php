@@ -401,6 +401,13 @@ class EntityHelper {
     return !empty($info['bundles']) ? ArrayHelper::extractNestedValuesToArray($info['bundles'], array('label')) : array();
   }
 
+  public static function getEntityKey($entity_type, $entity, $key) {
+    $info = entity_get_info($entity_type);
+    if (static::entityTypeHasProperty($entity_type, array('entity keys', $key)) && isset($entity->$info['entity keys'][$key])) {
+      return $entity->$info['entity keys'][$key];
+    }
+  }
+
   public static function getViewModeOptions($entity_type, $bundle = NULL, $include_disabled = TRUE) {
     $view_modes = array();
     $info = entity_get_info($entity_type);
