@@ -365,4 +365,21 @@ class FieldHelper {
 
     watchdog('helper', "Field ID {$field['id']} completely removed.");
   }
+
+  public static function viewCustomField($field_name, $label, array $items, array $context) {
+    return array(
+      '#theme' => 'field',
+      '#title' => $label,
+      '#label_display' => 'above',
+      '#view_mode' => isset($context['view_mode']) ? $context['view_mode'] : '_custom_display',
+      '#language' => $context['langcode'],
+      '#field_name' => $field_name,
+      '#field_type' => 'custom',
+      '#field_translatable' => FALSE,
+      '#entity_type' => $context['entity_type'],
+      '#bundle' => EntityHelper::getKey($context['entity_type'], $context['entity'], 'bundle'),
+      '#object' => $context['entity'],
+      '#items' => $items,
+    ) + $items;
+  }
 }

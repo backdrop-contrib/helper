@@ -401,7 +401,7 @@ class EntityHelper {
     return !empty($info['bundles']) ? ArrayHelper::extractNestedValuesToArray($info['bundles'], array('label')) : array();
   }
 
-  public static function getEntityKey($entity_type, $entity, $key) {
+  public static function getKey($entity_type, $entity, $key) {
     $info = entity_get_info($entity_type);
     if (static::entityTypeHasProperty($entity_type, array('entity keys', $key)) && isset($entity->$info['entity keys'][$key])) {
       return $entity->$info['entity keys'][$key];
