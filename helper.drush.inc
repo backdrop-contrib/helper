@@ -20,6 +20,9 @@ function helper_drush_cache_clear(&$types) {
     if (function_exists('module_exists') && module_exists('views')) {
       $types['views'] = 'views_invalidate_cache';
     }
+    if (function_exists('module_exists') && module_exists('simpletest')) {
+      $types['simpletest'] = 'simpletest_clean_environment';
+    }
   }
 }
 

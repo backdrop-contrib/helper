@@ -33,6 +33,12 @@ function helper_admin_menu_cache_info() {
       'callback' => 'views_invalidate_cache',
     );
   }
+  if (module_exists('simpletest')) {
+    $caches['simpletest'] = array(
+      'title' => t('Simpletest'),
+      'callback' => 'simpletest_clean_environment',
+    );
+  }
   return $caches;
 }
 
