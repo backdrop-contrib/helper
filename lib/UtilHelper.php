@@ -34,4 +34,33 @@ class UtilHelper {
     return TRUE;
   }
 
+  /**
+   * Switch the current theme.
+   *
+   * @param string $theme
+   *   The theme name.
+   */
+  public static function switchTheme($theme) {
+    $themes = list_themes();
+
+    if (!isset($themes[$theme]) || $GLOBALS['theme'] == $theme) {
+      return;
+    }
+
+    $GLOBALS['theme'] = $GLOBALS['theme_key'] = $theme;
+
+    // Find all our ancestor themes and put them in an array.
+    $base_theme = array();
+    $ancestor = $theme;
+    while ($ancestor && isset($themes[$ancestor]->base_theme)) {
+      $ancestor = $themes[$ancestor]->base_theme;
+      $base_theme[] = $themes[$ancestor];
+    }
+    _drupal_theme_initialize($themes[$theme], array_reverse($base_theme));
+
+    // Themes can have alter functions, so reset the drupal_alter() cache.
+    drupal_static_reset('drupal_alter');
+    //drupal_static_reset('theme_get_registry');
+  }
+
 }
