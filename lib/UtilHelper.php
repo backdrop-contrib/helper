@@ -60,7 +60,7 @@ class UtilHelper {
 
     // Themes can have alter functions, so reset the drupal_alter() cache.
     drupal_static_reset('drupal_alter');
-    //drupal_static_reset('theme_get_registry');
+    drupal_static_reset('theme_get_registry');
   }
 
   /**
