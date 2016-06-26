@@ -63,4 +63,26 @@ class UtilHelper {
     //drupal_static_reset('theme_get_registry');
   }
 
+  /**
+   * Runs a batch even if another batch is currently running.
+   *
+   * This is useful for running a batch inside SimpleTests.
+   *
+   * @param array $batch
+   *   A batch array that would normally get passed to batch_set().
+   */
+  public function runBatch(array $batch) {
+    $existing_batch = batch_get();
+    $current_batch = &batch_get();
+    if ($existing_batch) {
+      $current_batch = NULL;
+    }
+    batch_set($batch);
+    $current_batch['progressive'] = FALSE;
+    batch_process();
+    if ($existing_batch) {
+      $current_batch = $existing_batch;
+    }
+  }
+
 }
