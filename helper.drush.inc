@@ -11,7 +11,7 @@
 function helper_drush_cache_clear(&$types) {
   $types['bootstrap'] = 'helper_drush_cache_clear_bootstrap';
   // @todo Remove when http://drupal.org/node/1899468 is fixed.
-  if (drush_has_boostrapped(DRUSH_BOOTSTRAP_DRUPAL_FULL)) {
+  if (drush_has_boostrapped(DRUSH_BOOTSTRAP_BACKDROP_FULL)) {
     $types['entity'] = 'helper_drush_cache_clear_entity';
     $types['field'] = 'field_cache_clear';
     if (function_exists('module_exists') && module_exists('migrate')) {

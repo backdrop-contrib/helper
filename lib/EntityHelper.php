@@ -116,7 +116,7 @@ class EntityHelper {
 
   public static function entityTypeHasProperty($entity_type, array $parents) {
     if ($info = entity_get_info($entity_type)) {
-      return drupal_array_get_nested_value($info, $parents);
+      return backdrop_array_get_nested_value($info, $parents);
     }
   }
 
@@ -371,18 +371,18 @@ class EntityHelper {
     $items = menu_contextual_links($entity_type, $base_path, array($entity_id));
     $links = array();
     foreach ($items as $class => $item) {
-      $class = drupal_html_class($class);
+      $class = backdrop_html_class($class);
       $links[$class] = array(
         'title' => $item['title'],
         'href' => $item['href'],
       );
       $item['localized_options'] += array('query' => array());
-      $item['localized_options']['query'] += drupal_get_destination();
+      $item['localized_options']['query'] += backdrop_get_destination();
       $links[$class] += $item['localized_options'];
     }
     $build['#links'] = $links;
 
-    drupal_alter('contextual_links_view', $build, $items);
+    backdrop_alter('contextual_links_view', $build, $items);
 
     if (empty($links)) {
       $build['#printed'] = TRUE;
@@ -478,7 +478,7 @@ class EntityHelper {
         $field_query->fieldCondition($field_name, $column, $entity_ids);
         if ($results = $field_query->execute()) {
           if ($flatten) {
-            $references = drupal_array_merge_deep($references, $results);
+            $references = backdrop_array_merge_deep($references, $results);
           }
           else {
             $references[$field_name . ':' . $column] = $results;
@@ -502,14 +502,14 @@ class EntityHelper {
     if (empty($uri['path'])) {
       return FALSE;
     }
-    elseif ($options['needs alias'] && !drupal_lookup_path('alias', $uri['path'], NULL)) {
+    elseif ($options['needs alias'] && !backdrop_lookup_path('alias', $uri['path'], NULL)) {
       return FALSE;
     }
     elseif (module_exists('rabbit_hole') && rabbit_hole_get_action($entity_type, $entity) !== RABBIT_HOLE_DISPLAY_CONTENT) {
       return FALSE;
     }
     else {
-      return entity_access('view', $entity_type, $entity, drupal_anonymous_user());
+      return entity_access('view', $entity_type, $entity, backdrop_anonymous_user());
     }
   }
 

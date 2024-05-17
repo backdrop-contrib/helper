@@ -25,7 +25,7 @@ class HelperDebugMailLog extends DefaultMailSystem {
       dpm($message, $header);
     }
     else {
-      drupal_set_message($header . ' ' . $string);
+      backdrop_set_message($header . ' ' . $string);
     }
 
     // Don't actually use debug to display the message since we want to be able

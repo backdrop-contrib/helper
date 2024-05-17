@@ -1,15 +1,7 @@
 <?php
 
-class MenuHelperTestCase extends DrupalWebTestCase {
+class MenuHelperTestCase extends BackdropWebTestCase {
   protected $profile = 'testing';
-
-  public static function getInfo() {
-    return array(
-      'name' => 'MenuHelper',
-      'description' => 'Tests for the MenuHelper class.',
-      'group' => 'Helper',
-    );
-  }
 
   public function setUp() {
     parent::setUp(array('helper', 'menu'));

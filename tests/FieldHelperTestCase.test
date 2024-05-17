@@ -1,15 +1,7 @@
 <?php
 
-class FieldHelperTestCase extends DrupalWebTestCase {
+class FieldHelperTestCase extends BackdropWebTestCase {
   protected $profile = 'testing';
-
-  public static function getInfo() {
-    return array(
-      'name' => 'FieldHelper',
-      'description' => 'Tests for the FieldHelper class.',
-      'group' => 'Helper',
-    );
-  }
 
   public function setUp() {
     parent::setUp(array('helper', 'file', 'image', 'taxonomy', 'entityreference'));
@@ -18,9 +10,11 @@ class FieldHelperTestCase extends DrupalWebTestCase {
     $this->createField('file');
     $this->createField('image');
 
-    $vocabulary = new stdClass();
-    $vocabulary->name = $this->randomName();
-    $vocabulary->machine_name = drupal_strtolower($vocabulary->name);
+    $name = $this->randomName();
+    $vocabulary = new TaxonomyVocabulary(array(
+      'name' => $name,
+      'machine_name' => backdrop_strtolower($name),
+    ));
     taxonomy_vocabulary_save($vocabulary);
     $this->createField('taxonomy_term_reference', array(
       'settings' => array(
@@ -45,12 +39,12 @@ class FieldHelperTestCase extends DrupalWebTestCase {
 
   protected function createField($type, array $extra = array()) {
     $field = array('field_name' => 'field_' . $type, 'type' => $type);
-    $field = drupal_array_merge_deep($field, $extra);
+    $field = backdrop_array_merge_deep($field, $extra);
     return field_create_field($field);
   }
 
   public function testValues() {
-    $contentType = $this->drupalCreateContentType();
+    $contentType = $this->backdropCreateContentType();
 
     field_create_instance(array(
       'field_name' => 'field_text',
@@ -59,7 +53,7 @@ class FieldHelperTestCase extends DrupalWebTestCase {
       'label' => $this->randomName(),
     ));
 
-    $node = new stdClass();
+    $node = new Node();
     $node->type = $contentType->type;
     $node->language = LANGUAGE_NONE;
     $node->field_text = array(

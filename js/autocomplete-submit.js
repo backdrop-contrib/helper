@@ -3,7 +3,7 @@
 /**
  * Puts the currently highlighted suggestion into the autocomplete field.
  */
-Drupal.jsAC.prototype.select = function (node) {
+Backdrop.jsAC.prototype.select = function (node) {
   this.input.value = $(node).data('autocompleteValue');
   $(this.input).trigger('autocompleteSelect', [node]);
   if ($(this.input).hasClass('form-autocomplete-submit')) {
@@ -14,7 +14,7 @@ Drupal.jsAC.prototype.select = function (node) {
 /**
  * Handler for the "keyup" event.
  */
-Drupal.jsAC.prototype.onkeyup = function (input, e) {
+Backdrop.jsAC.prototype.onkeyup = function (input, e) {
   if (!e) {
     e = window.event;
   }

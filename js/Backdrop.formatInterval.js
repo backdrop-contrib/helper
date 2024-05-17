@@ -10,12 +10,12 @@
    * @param {Number} granularity
    *   How many different units to display in the string.
    * @param {Object} options
-   *   The options to pass to the Drupal.t() function.
+   *   The options to pass to the Backdrop.t() function.
    *
    * @return {String}
    *   A translated string representation of the interval.
    */
-  Drupal.formatInterval = function(interval, granularity, options) {
+  Backdrop.formatInterval = function(interval, granularity, options) {
     granularity = granularity || 2;
     options = options || {};
 
@@ -34,7 +34,7 @@
       var keys = key.split('|');
       var value = units[key];
       if (interval >= value) {
-        output += (output.length ? ' ' : '') + Drupal.formatPlural(Math.floor(interval / value), keys[0], keys[1], {}, options);
+        output += (output.length ? ' ' : '') + Backdrop.formatPlural(Math.floor(interval / value), keys[0], keys[1], {}, options);
         interval %= value;
         granularity--;
       }
@@ -44,7 +44,7 @@
       }
     }
 
-    return output.length ? output : Drupal.t('0 sec', {}, options);
+    return output.length ? output : Backdrop.t('0 sec', {}, options);
   }
 
 })(jQuery);

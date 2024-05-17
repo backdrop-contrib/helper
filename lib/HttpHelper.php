@@ -10,7 +10,7 @@ class HttpHelper {
       return $cache->data;
     }
     else {
-      $response = drupal_http_request($url, $options);
+      $response = backdrop_http_request($url, $options);
       $response->request_url = $url;
       $response->request_options = $options;
 
@@ -43,7 +43,7 @@ class HttpHelper {
       return $options['cache']['cid'];
     }
     $cid_parts = array($url, serialize(array_diff_key($options, array('cache' => ''))));
-    return 'http-request:' . drupal_hash_base64(serialize($cid_parts));
+    return 'http-request:' . backdrop_hash_base64(serialize($cid_parts));
   }
 
   public static function cachedRequestGetExpire($response, $options) {
@@ -70,7 +70,7 @@ class HttpHelper {
     $data = NULL;
     $response = static::cachedRequest($url, $options);
     if (empty($response->error)) {
-      $data = drupal_json_decode($response->data);
+      $data = backdrop_json_decode($response->data);
       if ($data === FALSE) {
         trigger_error("Unable to decode JSON response from {$url}.", E_USER_WARNING);
       }

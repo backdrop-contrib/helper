@@ -2,15 +2,7 @@
 
 require_once __DIR__ . '/../lib/ArrayHelper.php';
 
-class ArrayHelperTest extends DrupalUnitTestCase {
-
-  public static function getInfo() {
-    return array(
-      'name' => 'ArrayHelper',
-      'description' => 'Tests for the ArrayHelper class.',
-      'group' => 'Helper',
-    );
-  }
+class ArrayHelperTest extends BackdropUnitTestCase {
 
   function testNestedValue() {
     $input = array(

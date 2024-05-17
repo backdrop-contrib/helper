@@ -17,7 +17,7 @@ class views_handler_field_helper_entity_operation_links extends views_handler_fi
   function render($values) {
     if ($entity = $this->get_value($values)) {
       $links = EntityHelper::getOperationLinks($this->entity_type, $entity);
-      return drupal_render($links);
+      return backdrop_render($links);
     }
   }
 }

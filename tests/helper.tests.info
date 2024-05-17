@@ -1,0 +1,30 @@
+[ArrayHelperTest]
+name = ArrayHelper
+description = Tests for the ArrayHelper class.
+group = Helper
+file = ArrayHelperTest.test
+
+[FieldHelperTestCase]
+name = FieldHelper
+description = Tests for the FieldHelper class.
+group = Helper
+file = FieldHelperTestCase.test
+
+[MenuHelperTestCase]
+name = MenuHelper
+description = Tests for the MenuHelper class.
+group = Helper
+file = MenuHelperTestCase.test
+
+[UtilHelperTestCase]
+name = UtilHelper
+description = Tests for the UtilHelper class.
+group = Helper
+file = UtilHelperTestCase.test
+
+[XmlHelperTestCase]
+name = XmlHelper
+description = Tests for the XmlHelper class.
+group = Helper
+file = XmlHelperTestCase.test
+

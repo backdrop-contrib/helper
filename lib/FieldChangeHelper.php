@@ -81,9 +81,9 @@ class FieldChangeHelper {
 
       // Make any final field overrides before updating the schema and saving
       // the field config record back to the database.
-      $field = drupal_array_merge_deep($field, $field_overrides);
+      $field = backdrop_array_merge_deep($field, $field_overrides);
       static::changeSchema($field, $column_renames);
-      drupal_write_record('field_config', $field, array('id'));
+      backdrop_write_record('field_config', $field, array('id'));
 
       // Now update the instances for this field.
       static::changeInstances($field, $field_instance_overrides);
@@ -275,9 +275,9 @@ class FieldChangeHelper {
       }
 
       // Allow anything to be overridden before it gets saved.
-      $instance = drupal_array_merge_deep($instance, $field_instance_overrides);
+      $instance = backdrop_array_merge_deep($instance, $field_instance_overrides);
 
-      drupal_write_record('field_config_instance', $instance, array('id'));
+      backdrop_write_record('field_config_instance', $instance, array('id'));
 
       // Clear caches.
       field_cache_clear();
