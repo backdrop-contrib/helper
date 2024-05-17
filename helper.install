@@ -6,16 +6,21 @@
  */
 
 /**
- * Implements hook_uninstall().
+ * Move variables to config.
  */
-function helper_uninstall() {
-  variable_del('helper_tweaks');
-  variable_del('helper_honeybot_block_anonymous_ip_threshold');
+function helper_update_1000() {
+  $config = config('helper.settings');
+  $config->set('tweaks', update_variable_get('helper_tweaks', array()));
+  $config->set('honeybot_block_anonymous_ip_threshold', update_variable_get('helper_honeybot_block_anonymous_ip_threshold', 2));
+  $config->save();
+  update_variable_del('helper_tweaks');
+  update_variable_del('helper_honeybot_block_anonymous_ip_threshold');
+
 }
 
 /**
- * Empty update function to trigger a registry rebuild.
+ * Implements hook_update_last_removed().
  */
-function helper_update_7000() {
-  // Do nothing.
+function helper_update_last_removed() {
+  return 7000;
 }

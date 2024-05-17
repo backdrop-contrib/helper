@@ -15,7 +15,7 @@ class MenuHelper {
     foreach ($links as &$link) {
       $link += $defaults;
       if (!url_is_external($link['link_path'])) {
-        $link['link_path'] = drupal_get_normal_path($link['link_path']);
+        $link['link_path'] = backdrop_get_normal_path($link['link_path']);
       }
       if ($mlid = menu_link_save($link)) {
         $link['mlid'] = $mlid;

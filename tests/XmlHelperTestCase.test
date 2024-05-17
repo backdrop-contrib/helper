@@ -3,15 +3,7 @@
 require_once __DIR__ . '/../lib/ArrayHelper.php';
 require_once __DIR__ . '/../lib/XmlHelper.php';
 
-class XmlHelperTestCase extends DrupalUnitTestCase {
-
-  public static function getInfo() {
-    return array(
-      'name' => 'XmlHelper',
-      'description' => 'Tests for the XmlHelper class.',
-      'group' => 'Helper',
-    );
-  }
+class XmlHelperTestCase extends BackdropUnitTestCase {
 
   public function assertParseElements($xml, $expected, array $options = array()) {
     $array = XmlHelper::parseElements($xml, $options);

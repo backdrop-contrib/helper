@@ -2,14 +2,18 @@
 
 class ProfileHelper {
   public static function installVariables(array $variables) {
+    // @todo: This should be replaced with a config solution.
+    backdrop_set_message(t('ProfileHelper::installVariables() is deprecated. We need to adapt it for config instead. Please file an issue.'), 'warning');
+    /*
     foreach ($variables as $name => $value) {
       variable_set($name, $value);
     }
+    */
   }
 
   public static function installBlocks(array $blocks, $theme = NULL) {
     if (!isset($theme)) {
-      $theme = variable_get('theme_default', 'bartik');
+      $theme = config_get('system.core', 'theme_default');
     }
 
     $query = db_insert('block');
@@ -22,7 +26,7 @@ class ProfileHelper {
         'visibility' => BLOCK_VISIBILITY_NOTLISTED,
         'pages' => '',
         'title' => '',
-        'cache' => DRUPAL_NO_CACHE,
+        'cache' => BACKDROP_NO_CACHE,
       );
       $query->values($block);
     }

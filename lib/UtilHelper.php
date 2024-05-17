@@ -5,7 +5,7 @@ class UtilHelper {
   /**
    * Registers a unique function call for execution on shutdown.
    *
-   * Wrapper for drupal_register_shutdown_function() that does not add the
+   * Wrapper for backdrop_register_shutdown_function() that does not add the
    * function call if it already exists in the shutdown function stack.
    *
    * @param callable $callback
@@ -16,13 +16,13 @@ class UtilHelper {
    * @return bool
    *   TRUE if the function was added, or FALSE if it was already in the stack.
    *
-   * @see drupal_register_shutdown_function()
+   * @see backdrop_register_shutdown_function()
    */
   public static function registerUniqueShutdownFunction($callback = NULL) {
     $args = func_get_args();
     array_shift($args);
 
-    $existing_callbacks = drupal_register_shutdown_function();
+    $existing_callbacks = backdrop_register_shutdown_function();
     foreach ($existing_callbacks as $existing_callback) {
       if ($existing_callback['callback'] === $callback && $existing_callback['arguments'] === $args) {
         return FALSE;
@@ -30,7 +30,7 @@ class UtilHelper {
     }
 
     array_unshift($args, $callback);
-    call_user_func_array('drupal_register_shutdown_function', $args);
+    call_user_func_array('backdrop_register_shutdown_function', $args);
     return TRUE;
   }
 
@@ -56,11 +56,11 @@ class UtilHelper {
       $ancestor = $themes[$ancestor]->base_theme;
       $base_theme[] = $themes[$ancestor];
     }
-    _drupal_theme_initialize($themes[$theme], array_reverse($base_theme));
+    _backdrop_theme_initialize($themes[$theme], array_reverse($base_theme));
 
-    // Themes can have alter functions, so reset the drupal_alter() cache.
-    drupal_static_reset('drupal_alter');
-    drupal_static_reset('theme_get_registry');
+    // Themes can have alter functions, so reset the backdrop_alter() cache.
+    backdrop_static_reset('backdrop_alter');
+    backdrop_static_reset('theme_get_registry');
   }
 
   /**

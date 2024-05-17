@@ -10,7 +10,7 @@
  */
 function helper_field_create_instance($instance) {
   // Clear the menu cache whenever a field instances is created.
-  variable_set('menu_rebuild_needed', TRUE);
+  state_set('menu_rebuild_needed', TRUE);
 }
 
 /**
@@ -18,7 +18,7 @@ function helper_field_create_instance($instance) {
  */
 function helper_field_delete_instance($instance) {
   // Clear the menu cache whenever a field instances is deleted.
-  variable_set('menu_rebuild_needed', TRUE);
+  state_set('menu_rebuild_needed', TRUE);
 }
 
 /**

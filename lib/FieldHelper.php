@@ -137,7 +137,7 @@ class FieldHelper {
         }
       }
 
-      drupal_alter('helper_field_get_referencing_fields', $results, $fields);
+      backdrop_alter('helper_field_get_referencing_fields', $results, $fields);
       cache_set('field_info:helper_referencing_fields', $results, 'cache_field');
     }
 

@@ -1,20 +1,9 @@
 name = Helper
-description = Provides helper APIs for working with Drupal.
-core = 7.x
-php = 5.3
-files[] = lib/ArrayHelper.php
-files[] = lib/CacheHelper.php
-files[] = lib/DeliveryHelper.php
-files[] = lib/EntityHelper.php
-files[] = lib/FeaturesHelper.php
-files[] = lib/FieldHelper.php
-files[] = lib/FieldChangeHelper.php
-files[] = lib/HttpHelper.php
-files[] = lib/MenuHelper.php
-files[] = lib/ProfileHelper.php
-files[] = lib/RenderHelper.php
-files[] = lib/UtilHelper.php
-files[] = lib/XmlHelper.php
+description = Provides helper APIs for working with Backdrop.
+backdrop = 1.x
+
+dependencies[] = entity
+
 files[] = includes/HelperDebugMailLog.php
 files[] = views/views_handler_field_helper_entity_operation_links.inc
 files[] = tests/ArrayHelperTest.test
@@ -23,7 +12,6 @@ files[] = tests/FieldHelperTestCase.test
 files[] = tests/MenuHelperTestCase.test
 files[] = tests/UtilHelperTestCase.test
 files[] = tests/XmlHelperTestCase.test
-dependencies[] = entity
 test_dependencies[] = entityreference
 test_dependencies[] = redirect
 test_dependencies[] = features
