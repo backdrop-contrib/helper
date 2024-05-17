@@ -80,15 +80,19 @@ class FieldChangeHelper {
       // @todo Check if $field['translatable'] needs to be changed.
 
       // Make any final field overrides before updating the schema and saving
-      // the field config record back to the database.
+      // the field config record.
       $field = backdrop_array_merge_deep($field, $field_overrides);
       static::changeSchema($field, $column_renames);
-      backdrop_write_record('field_config', $field, array('id'));
+      $field_config = config('field.field.' . $field_name);
+      foreach ($field as $key => $value) {
+        $field_config->set($key, $value);
+      }
+      $field_config->save();
 
       // Now update the instances for this field.
       static::changeInstances($field, $field_instance_overrides);
 
-      // Clear caches
+      // Clear caches.
       field_cache_clear();
 
       // Invoke external hooks after the cache is cleared for API consistency.
@@ -107,7 +111,7 @@ class FieldChangeHelper {
   }
 
   public static function changeSchema(array &$field, array $column_renames = array()) {
-    // Update the field schema
+    // Update the field schema.
     $old_schema = array_intersect_key($field, array('columns' => '', 'indexes' => '', 'foreign keys' => ''));
     module_load_install($field['module']);
     $new_schema = (array) module_invoke($field['module'], 'field_schema', $field);
@@ -147,7 +151,7 @@ class FieldChangeHelper {
 
     // Remove all existing indexes.
     foreach ($old_schema['indexes'] as $index => $index_fields) {
-      $index_name =_field_sql_storage_indexname($field['field_name'], $index);
+      $index_name = _field_sql_storage_indexname($field['field_name'], $index);
       if (db_index_exists($data_table, $index_name)) {
         watchdog('helper', "Dropped index $data_table.$index_name");
         db_drop_index($data_table, $index_name);
@@ -210,7 +214,7 @@ class FieldChangeHelper {
           $index_field = _field_sql_storage_columnname($field['field_name'], $index_field);
         }
       }
-      $index_name =_field_sql_storage_indexname($field['field_name'], $index);
+      $index_name = _field_sql_storage_indexname($field['field_name'], $index);
       db_add_index($data_table, $index_name, $index_fields);
       watchdog('helper', "Added index $data_table.$index_name<br/><pre>" . print_r($index_fields, TRUE) . '</pre>');
       db_add_index($revision_table, $index_name, $index_fields);
@@ -262,6 +266,9 @@ class FieldChangeHelper {
       foreach ($instance['display'] as $view_mode => $display) {
         if ($display['type'] !== 'hidden') {
           $formatter_info = field_info_formatter_types($display['type']);
+          if (!is_array($formatter_info['field types'])) {
+            $formatter_info['field types'] = array();
+          }
           if (!in_array($field['type'], $formatter_info['field types'])) {
             // Fallback to using the field type's default formatter.
             $instance['display'][$view_mode]['type'] = $type_info['default_formatter'];
@@ -276,8 +283,11 @@ class FieldChangeHelper {
 
       // Allow anything to be overridden before it gets saved.
       $instance = backdrop_array_merge_deep($instance, $field_instance_overrides);
-
-      backdrop_write_record('field_config_instance', $instance, array('id'));
+      $instance_config = config('field.instance.' . $instance['entity_type'] . '.' . $instance['bundle'] . '.' . $field['field_name']);
+      foreach ($instance as $key => $value) {
+        $instance_config->set($key, $value);
+      }
+      $instance_config->save();
 
       // Clear caches.
       field_cache_clear();
